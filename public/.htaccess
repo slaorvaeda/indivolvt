@@ -1,0 +1,23 @@
+DirectoryIndex index.html
+
+RewriteEngine On
+
+# Force HTTPS Redirection
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Serve existing files or directories directly
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# Clean URLs: Rewrite request to path.html if the file exists
+RewriteCond %{DOCUMENT_ROOT}/$1.html -f
+RewriteRule ^([^/]+)/?$ $1.html [L]
+
+# Clean URLs for nested routes: Rewrite request to path.html if the file exists
+RewriteCond %{DOCUMENT_ROOT}/$1.html -f
+RewriteRule ^(.*)$ $1.html [L]
+
+# Fallback to 404.html for pages not found
+ErrorDocument 404 /404.html

@@ -38,6 +38,8 @@ export default function Home() {
         <ProductShowcase />
 
         {/* FAQ Accordion */}
+        console.log("hello");
+
         <Faq />
       </main>
 

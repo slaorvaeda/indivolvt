@@ -1,0 +1,46 @@
+name: Deploy to BigRock Shared Hosting
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Build Next.js App
+        run: npm run build
+
+      - name: Package Build Files
+        run: |
+          cd out
+          zip -r ../build.zip .
+
+      - name: Setup SSH Configuration
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.BIGROCK_SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H 66.116.229.214 >> ~/.ssh/known_hosts
+
+      - name: Upload Build Package
+        run: |
+          scp -i ~/.ssh/id_ed25519 build.zip a178473e@66.116.229.214:~/indivoltappliances.com/build.zip
+
+      - name: Extract Build Package on Server
+        run: |
+          ssh -i ~/.ssh/id_ed25519 a178473e@66.116.229.214 "unzip -o ~/indivoltappliances.com/build.zip -d ~/indivoltappliances.com/ && rm -f ~/indivoltappliances.com/build.zip"
