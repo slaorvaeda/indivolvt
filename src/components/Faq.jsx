@@ -56,6 +56,7 @@ export default function Faq() {
                 src="https://images.unsplash.com/photo-1621905251189-08b45d6a269e?q=80&w=600"
                 alt="Sleek electrical switch board"
                 fill
+                sizes="(max-width: 1024px) 100vw, 400px"
                 className="object-cover"
               />
             </div>

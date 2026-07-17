@@ -177,6 +177,7 @@ export default function Categories() {
                       src={col.image}
                       alt={col.title}
                       fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
                       className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-sky-950/20 to-transparent"></div>
@@ -200,6 +201,7 @@ export default function Categories() {
                       src="/logo.jpg"
                       alt="Logo"
                       fill
+                      sizes="20px"
                       className="object-cover"
                     />
                   </div>
@@ -218,6 +220,7 @@ export default function Categories() {
                   <div className="absolute inset-0 flex items-center justify-center">
                     <Link
                       href={col.link}
+                      aria-label={`Explore Zigma's ${col.title} collection`}
                       className="w-[72px] h-[72px] bg-sky-50 group-hover:bg-orange-500 text-sky-900 group-hover:text-white rounded-full flex items-center justify-center transition-all duration-300 shadow-md group-hover:scale-105"
                     >
                       <ArrowUpRight className="w-6 h-6 stroke-[3]" />

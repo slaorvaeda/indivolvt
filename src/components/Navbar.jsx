@@ -67,6 +67,7 @@ export default function Navbar() {
               src="/logo2.png"
               alt="Indivolt Logo"
               fill
+              sizes="80px"
               className="object-cover"
               priority
             />

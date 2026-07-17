@@ -101,6 +101,7 @@ export default function Story() {
                 src={journeyText.leftImage}
                 alt="Workshop Details"
                 fill
+                sizes="(max-width: 768px) 100vw, 350px"
                 className="object-cover hover:scale-105 transition-transform duration-500"
               />
             </div>

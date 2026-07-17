@@ -112,6 +112,7 @@ export default function Hero() {
                   src={cardImages[currentVideoIndex]}
                   alt="Indivolt Featured Fan"
                   fill
+                  sizes="(max-width: 768px) 100vw, 50vw"
                   className="object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-500"
                   priority
                 />

@@ -117,6 +117,7 @@ export default function ProductDetailPage({ params: paramsPromise }) {
                     width={260}
                     height={260}
                     className="object-contain drop-shadow-[0_15px_30px_rgba(0,0,0,0.15)] transition-transform duration-500 group-hover:scale-105"
+                    priority
                   />
                 </motion.div>
               </div>

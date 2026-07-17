@@ -200,6 +200,7 @@ export default function CategoryPage({ params: paramsPromise }) {
                   width={240}
                   height={240}
                   className="object-contain drop-shadow-[0_20px_40px_rgba(0,0,0,0.3)] transition-transform duration-500 hover:scale-105"
+                  priority
                 />
               </motion.div>
             </div>
