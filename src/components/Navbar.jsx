@@ -3,13 +3,30 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Search, ShoppingBag, Menu, X, ChevronDown } from "lucide-react";
+import { Search, ShoppingBag, Menu, X, ChevronDown, Trash2, Plus, Minus } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { getCategories } from "@/utils/api";
+import { useCartStore } from "@/store/useCartStore";
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [cartOpen, setCartOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  const cart = useCartStore((state) => state.cart);
+  const updateQuantity = useCartStore((state) => state.updateQuantity);
+  const removeFromCart = useCartStore((state) => state.removeFromCart);
+  const getTotalItems = useCartStore((state) => state.getTotalItems);
+  const getTotalPrice = useCartStore((state) => state.getTotalPrice);
+  const clearCart = useCartStore((state) => state.clearCart);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const totalItems = mounted ? getTotalItems() : 0;
 
   const handleHomeClick = (e) => {
     if (typeof window !== "undefined") {
@@ -40,17 +57,20 @@ export default function Navbar() {
     { name: "Products", href: "/#products" },
   ];
 
-  const dropdownCategories = [
-    { name: "Irons", href: "/category/irons", image: "/catogeries/irons.png" },
-    { name: "Fans", href: "/category/fans", image: "/catogeries/fan.png" },
-    { name: "Water Heaters", href: "/category/water-heaters", image: "/catogeries/waterheeter.avif" },
-    { name: "Kettles", href: "/category/kettles", image: "/catogeries/Kettles.png" },
-    { name: "Room Heaters", href: "/category/room-heaters", image: "/catogeries/Room Heaters.png" },
-    { name: "Industrial Motors", href: "/category/motors", image: "/catogeries/Industrial Motors.png" },
-    { name: "Mixers", href: "/category/mixers", image: "/catogeries/Mixers.png" },
-    { name: "Hot Plate", href: "/category/hot-plate", image: "/catogeries/Hot Plate.png" },
-    { name: "Water Pump", href: "/category/water-pump", image: "/catogeries/pump.png" },
-  ];
+  const [dbCategories, setDbCategories] = useState([]);
+
+  useEffect(() => {
+    async function loadCategories() {
+      const cats = await getCategories();
+      const mapped = cats.map(cat => ({
+        name: cat.name,
+        href: `/category/${cat.name.toLowerCase().replace(/ /g, '-')}`,
+        image: cat.imageUrl
+      }));
+      setDbCategories(mapped);
+    }
+    loadCategories();
+  }, []);
 
   return (
     <header
@@ -120,13 +140,16 @@ export default function Navbar() {
           </button>
 
           <button
+            onClick={() => setCartOpen(true)}
             className="p-2 text-sky-900 hover:text-orange-500 transition-colors duration-200 relative"
             aria-label="Shopping Cart"
           >
             <ShoppingBag className="w-5 h-5 stroke-[2.5]" />
-            <span className="absolute top-0 right-0 w-4 h-4 bg-orange-500 text-white text-[9px] font-black rounded-full flex items-center justify-center animate-pulse">
-              3
-            </span>
+            {totalItems > 0 && (
+              <span className="absolute top-0 right-0 w-4 h-4 bg-orange-500 text-white text-[9px] font-black rounded-full flex items-center justify-center animate-pulse">
+                {totalItems}
+              </span>
+            )}
           </button>
 
           <Link
@@ -140,10 +163,16 @@ export default function Navbar() {
         {/* Mobile Menu Button */}
         <div className="flex lg:hidden items-center gap-4">
           <button
-            className="p-2 text-sky-900 hover:text-orange-500"
+            onClick={() => setCartOpen(true)}
+            className="p-2 text-sky-900 hover:text-orange-500 relative"
             aria-label="Shopping Cart"
           >
             <ShoppingBag className="w-5 h-5 stroke-[2.5]" />
+            {totalItems > 0 && (
+              <span className="absolute top-0 right-0 w-3.5 h-3.5 bg-orange-500 text-white text-[8px] font-black rounded-full flex items-center justify-center animate-pulse">
+                {totalItems}
+              </span>
+            )}
           </button>
 
           <button
@@ -173,7 +202,7 @@ export default function Navbar() {
               {/* Left Column: Rebranding Summary */}
               <div className="col-span-4 space-y-4">
                 <h4 className="text-xs font-black uppercase tracking-widest text-orange-500">
-                  Zigma Collection
+                  Zigma Appliances
                 </h4>
                 <p className="text-xs font-bold text-sky-850 leading-relaxed">
                   Explore products engineered with silent BLDC technology, smart controls, and high-performance safety standards.
@@ -190,7 +219,7 @@ export default function Navbar() {
 
               {/* Right Column: The 9 Category Links in 3 Columns */}
               <div className="col-span-8 grid grid-cols-3 gap-y-4 gap-x-8">
-                {dropdownCategories.map((cat) => (
+                {dbCategories.map((cat) => (
                   <Link
                     key={cat.name}
                     href={cat.href}
@@ -251,11 +280,151 @@ export default function Navbar() {
               Explore Products
             </Link>
             <div className="text-center text-xs font-bold text-sky-650">
-              © {new Date().getFullYear()} Zigma Electricals
+              © {new Date().getFullYear()} Indivolt Appliances
             </div>
           </div>
         </div>
       </div>
+      
+      {/* Cart Drawer */}
+      <AnimatePresence>
+        {cartOpen && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setCartOpen(false)}
+              className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs"
+            />
+            {/* Drawer */}
+            <motion.div
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              className="fixed inset-y-0 right-0 z-50 w-full sm:w-100 bg-white shadow-2xl border-l border-slate-100 flex flex-col justify-between"
+            >
+              {/* Header */}
+              <div className="p-6 border-b border-slate-100 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <ShoppingBag className="w-5 h-5 text-sky-950" />
+                  <h2 className="text-lg font-black text-sky-950">Your Cart</h2>
+                  {totalItems > 0 && (
+                    <span className="px-2.5 py-0.5 rounded-full bg-sky-100 text-sky-950 text-[10px] font-black">
+                      {totalItems}
+                    </span>
+                  )}
+                </div>
+                <button
+                  onClick={() => setCartOpen(false)}
+                  className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-900 transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Items List */}
+              <div className="flex-grow overflow-y-auto p-6 space-y-4">
+                {cart.length === 0 ? (
+                  <div className="h-full flex flex-col items-center justify-center text-center space-y-4">
+                    <div className="w-16 h-16 rounded-full bg-slate-50 flex items-center justify-center text-slate-400">
+                      <ShoppingBag className="w-8 h-8" />
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-sm font-black text-sky-950">Your cart is empty</p>
+                      <p className="text-xs font-medium text-slate-450">Add products to get started</p>
+                    </div>
+                  </div>
+                ) : (
+                  cart.map((item) => (
+                    <div key={item.id} className="flex gap-4 p-3 rounded-2xl border border-slate-100 bg-slate-50/50 hover:bg-slate-50 transition-all">
+                      <div className="relative w-16 h-16 bg-white border border-slate-100 rounded-xl overflow-hidden flex items-center justify-center p-2 flex-shrink-0">
+                        <Image
+                          src={item.image}
+                          alt={item.name}
+                          fill
+                          className="object-contain p-1"
+                        />
+                      </div>
+                      <div className="flex-grow flex flex-col justify-between py-0.5">
+                        <div className="space-y-1">
+                          <h4 className="text-xs font-black text-sky-950 line-clamp-1 leading-tight">{item.name}</h4>
+                          <span className="text-[10px] font-black text-slate-450 leading-none">
+                            ₹{item.price.toFixed(2)}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between gap-4">
+                          {/* Quantity selector */}
+                          <div className="flex items-center border border-slate-200/80 rounded-lg bg-white overflow-hidden">
+                            <button
+                              onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                              className="px-2 py-1 text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-colors"
+                            >
+                              <Minus className="w-3 h-3" />
+                            </button>
+                            <span className="px-2 text-[11px] font-black text-sky-950 min-w-[20px] text-center">
+                              {item.quantity}
+                            </span>
+                            <button
+                              onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                              className="px-2 py-1 text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-colors"
+                            >
+                              <Plus className="w-3 h-3" />
+                            </button>
+                          </div>
+                          
+                          {/* Remove button */}
+                          <button
+                            onClick={() => removeFromCart(item.id)}
+                            className="p-1 rounded hover:bg-red-50 text-slate-400 hover:text-red-600 transition-colors"
+                            aria-label="Remove item"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              {/* Footer */}
+              {cart.length > 0 && (
+                <div className="p-6 border-t border-slate-100 bg-slate-50/50 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-slate-500">Subtotal</span>
+                    <span className="text-xl font-black text-sky-950">₹{getTotalPrice().toFixed(2)}</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      onClick={() => {
+                        if (confirm("Are you sure you want to clear your cart?")) {
+                          clearCart();
+                        }
+                      }}
+                      className="py-3 border border-slate-200 hover:bg-slate-100 rounded-xl text-xs font-bold text-slate-600 transition-colors"
+                    >
+                      Clear All
+                    </button>
+                    <button
+                      onClick={() => {
+                        alert("Checkout functionality is coming soon! Thank you for shopping with Indivolt.");
+                        clearCart();
+                        setCartOpen(false);
+                      }}
+                      className="py-3 bg-sky-950 hover:bg-orange-500 text-white rounded-xl text-xs font-black shadow-md shadow-sky-950/10 hover:shadow-orange-500/10 transition-all"
+                    >
+                      Checkout
+                    </button>
+                  </div>
+                </div>
+              )}
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </header>
   );
 }

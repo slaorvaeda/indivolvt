@@ -22,7 +22,7 @@ export default function Footer() {
       {/* Huge Brand Text Watermark */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 select-none pointer-events-none w-full text-center">
         <span className="text-[12vw] sm:text-[15vw] font-black tracking-widest text-sky-500/5 uppercase leading-none block">
-          ZIGMA
+          INDIVOLT
         </span>
       </div>
 
@@ -160,7 +160,10 @@ export default function Footer() {
 
       {/* Bottom Bar */}
       <div className="max-w-7xl mx-auto px-6 md:px-12 mt-16 pt-8 border-t border-sky-100 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-sky-700/80 font-bold">
-        <p>© {new Date().getFullYear()} Zigma Electricals. All rights reserved.</p>
+        <div className="flex flex-col gap-1 text-center sm:text-left">
+          <p>© {new Date().getFullYear()} Indivolt Appliances. All rights reserved.</p>
+          <p className="text-[10px] text-sky-600/70 font-semibold italic">Indivolt Appliances is the authorized retailer and distributor of Zigma products.</p>
+        </div>
         <p className="flex items-center gap-1">
           Designed by <span className="text-orange-500 font-extrabold hover:text-sky-600 cursor-pointer">slaorvaeda</span>
         </p>

@@ -4,9 +4,11 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { Wind, ShieldCheck, Zap, ArrowRight, ShieldAlert, Cpu } from "lucide-react";
+import { useCartStore } from "@/store/useCartStore";
 
 export default function FeaturedFan() {
   const [selectedFan, setSelectedFan] = useState(1);
+  const addToCart = useCartStore((state) => state.addToCart);
 
   const fans = {
     1: {
@@ -193,7 +195,15 @@ export default function FeaturedFan() {
                 </div>
 
                 <div className="pt-6 border-t border-sky-100 flex flex-col sm:flex-row gap-4">
-                  <button className="flex-1 px-6 py-4.5 rounded-full text-xs font-black text-center text-white bg-gradient-to-r from-sky-600 to-sky-700 hover:from-orange-500 hover:to-orange-600 shadow-md transition-all duration-300">
+                  <button
+                    onClick={() => addToCart({
+                      id: `featured-${selectedFan}`,
+                      name: currentFan.name,
+                      price: parseFloat(currentFan.price.replace("₹", "")),
+                      image: currentFan.image
+                    })}
+                    className="flex-1 px-6 py-4.5 rounded-full text-xs font-black text-center text-white bg-gradient-to-r from-sky-600 to-sky-700 hover:from-orange-500 hover:to-orange-600 shadow-md transition-all duration-300"
+                  >
                     Add to Cart
                   </button>
                   <button className="px-6 py-4.5 rounded-full text-xs font-black text-center text-sky-900 border-2 border-sky-200 hover:border-orange-500 hover:text-orange-500 transition-colors">

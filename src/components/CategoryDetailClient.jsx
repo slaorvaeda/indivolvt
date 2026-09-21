@@ -7,12 +7,16 @@ import Image from "next/image";
 import Link from "next/link";
 import { Star, ShoppingCart, Check, ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
+import ProductCard from "@/components/ProductCard";
 
 export default function CategoryDetailClient({ category, filteredProducts }) {
   const [addedProductId, setAddedProductId] = useState(null);
 
-  const handleAddToCart = (id) => {
-    setAddedProductId(id);
+  const addToCart = useCartStore((state) => state.addToCart);
+
+  const handleAddToCart = (product) => {
+    addToCart(product);
+    setAddedProductId(product.id);
     setTimeout(() => {
       setAddedProductId(null);
     }, 2000);
@@ -84,8 +88,8 @@ export default function CategoryDetailClient({ category, filteredProducts }) {
             className="absolute right-1/4 top-10 w-40 h-40 rounded-full bg-sky-500/10 blur-2xl pointer-events-none"
           />
 
-          {/* Centered Content Wrapper (Constrained to standard grid boundaries) */}
-          <div className="max-w-7xl mx-auto px-6 md:px-12 py-16 md:py-20 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+          {/* Centered Content Wrapper (Full-width grid layout) */}
+          <div className="w-full max-w-none mx-auto px-6 md:px-16 lg:px-24 py-16 md:py-20 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
             
             {/* Left Column: Heading and description with staggered slide-ins */}
             <div className="space-y-6 text-left">
@@ -132,7 +136,7 @@ export default function CategoryDetailClient({ category, filteredProducts }) {
                 transition={{ duration: 0.5, delay: 0.22 }}
                 className="text-sm font-bold text-sky-100/90 leading-relaxed max-w-md"
               >
-                Discover Zigma's high-efficiency {category.label.toLowerCase()} collection. Engineered with top-notch craftsmanship, robust electrical safety standards, and elegant aesthetics to fit modern residences perfectly.
+                Discover our high-efficiency Zigma {category.label.toLowerCase()} collection. Engineered with top-notch craftsmanship, robust electrical safety standards, and elegant aesthetics to fit modern residences perfectly.
               </motion.p>
             </div>
 
@@ -176,8 +180,8 @@ export default function CategoryDetailClient({ category, filteredProducts }) {
           </div>
         </div>
 
-        {/* Product Grid Area (Constrained to standard grid boundaries) */}
-        <div className="max-w-7xl mx-auto px-6 md:px-12 mt-16">
+        {/* Product Grid Area (Full-width layout) */}
+        <div className="w-full max-w-none mx-auto px-6 md:px-16 lg:px-24 mt-16">
           {filteredProducts.length === 0 ? (
             <div className="bg-white border border-sky-100 rounded-3xl p-12 text-center space-y-4 shadow-sm">
               <h3 className="text-xl font-black text-sky-950">No Products Available</h3>
@@ -190,93 +194,16 @@ export default function CategoryDetailClient({ category, filteredProducts }) {
               variants={containerVariants}
               initial="hidden"
               animate="show"
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+              className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
             >
               {filteredProducts.map((product) => (
-                <motion.div
+                <ProductCard
                   key={product.id}
-                  variants={cardVariants}
-                  className="bg-white border border-sky-100 rounded-[32px] overflow-hidden shadow-md flex flex-col justify-between group hover:border-orange-500/10 hover:shadow-xl transition-all duration-300 relative"
-                >
-                  {/* Badge */}
-                  {product.badge && (
-                    <div className="absolute top-4 left-4 z-10 px-3 py-1 rounded bg-orange-500 text-white text-[9px] font-black uppercase tracking-wider shadow-sm">
-                      {product.badge}
-                    </div>
-                  )}
-
-                  {/* Image Container */}
-                  <Link href={`/product/${product.id}`}>
-                    <div className="relative w-full h-64 bg-sky-50/50 flex items-center justify-center p-8 overflow-hidden border-b border-sky-100/50 cursor-pointer">
-                      <Image
-                        src={product.image}
-                        alt={product.name}
-                        width={180}
-                        height={180}
-                        className="object-contain transition-transform duration-500 group-hover:scale-110 drop-shadow-lg"
-                      />
-                    </div>
-                  </Link>
-
-                  {/* Info Column */}
-                  <div className="p-6 space-y-4 flex-grow flex flex-col justify-between">
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-1">
-                        <Star className="w-4 h-4 fill-amber-400 stroke-amber-400" />
-                        <span className="text-xs font-black text-sky-950 mt-0.5">
-                          {product.rating}
-                        </span>
-                      </div>
-
-                      <Link href={`/product/${product.id}`}>
-                        <h3 className="text-lg font-black text-sky-950 leading-snug group-hover:text-orange-500 transition-colors cursor-pointer">
-                          {product.name}
-                        </h3>
-                      </Link>
-
-                      <p className="text-xs font-bold text-sky-850 leading-relaxed">
-                        {product.description}
-                      </p>
-                    </div>
-
-                    <div className="pt-4 border-t border-sky-100/50 flex items-center justify-between gap-4">
-                      {/* Price Tag */}
-                      <div className="flex flex-col">
-                        <span className="text-xs font-black text-sky-400 line-through">
-                          ₹{product.originalPrice.toFixed(2)}
-                        </span>
-                        <span className="text-xl font-black text-sky-950">
-                          ₹{product.price.toFixed(2)}
-                        </span>
-                      </div>
-
-                      {/* Add To Cart */}
-                      <motion.button
-                        whileHover={{ scale: 1.03 }}
-                        whileTap={{ scale: 0.97 }}
-                        onClick={() => handleAddToCart(product.id)}
-                        disabled={addedProductId === product.id}
-                        className={`px-5 py-3 rounded-full text-xs font-black transition-all duration-305 flex items-center gap-1.5 shadow-md ${
-                          addedProductId === product.id
-                            ? "bg-emerald-600 text-white shadow-emerald-600/10 scale-95"
-                            : "bg-sky-950 hover:bg-orange-500 text-white shadow-sky-950/10 hover:shadow-orange-500/15 hover:-translate-y-0.5"
-                        }`}
-                      >
-                        {addedProductId === product.id ? (
-                          <>
-                            <Check className="w-4 h-4 stroke-[3]" />
-                            <span>Added</span>
-                          </>
-                        ) : (
-                          <>
-                            <ShoppingCart className="w-4 h-4 stroke-[2.5]" />
-                            <span>Add to Cart</span>
-                          </>
-                        )}
-                      </motion.button>
-                    </div>
-                  </div>
-                </motion.div>
+                  product={product}
+                  addedProductId={addedProductId}
+                  handleAddToCart={handleAddToCart}
+                  cardVariants={cardVariants}
+                />
               ))}
             </motion.div>
           )}

@@ -8,10 +8,10 @@ import Faq from "@/components/Faq";
 import Footer from "@/components/Footer";
 
 export const metadata = {
-  title: "Indivolt | Premium Home Appliances & Smart Electricals",
+  title: "Indivolt Appliances | Official Store for Zigma Home Appliances",
   description:
-    "Experience appliances with a soul, engineered for generations. Browse premium silent BLDC induction systems, smart air purifiers, robust grids, and energy-saving switches.",
-  keywords: "home appliances, kitchen appliances, smart switches, smart electricals, energy efficient, silent motors, Indivolt",
+    "Welcome to Indivolt Appliances, the official home of Zigma premium silent BLDC fans, smart water heaters, room heaters, irons, kettles, and kitchen solutions.",
+  keywords: "Indivolt, Indivolt Appliances, Zigma, Zigma Appliances, home appliances, kitchen appliances, smart switches, smart electricals, energy efficient, silent motors",
 };
 
 export default function Home() {

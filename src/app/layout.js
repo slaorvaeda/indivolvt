@@ -12,8 +12,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Indivolt | Premium Home Appliances & Smart Electricals",
-  description: "Experience appliances with a soul, engineered for generations. Browse premium silent BLDC induction systems, smart air purifiers, robust grids, and energy-saving switches.",
+  title: "Indivolt Appliances | Official Store for Zigma Home Appliances",
+  description: "Welcome to Indivolt Appliances, the official home of Zigma premium silent BLDC fans, smart water heaters, room heaters, irons, kettles, and kitchen solutions.",
   metadataBase: new URL("https://indivoltappliances.com"),
 };
 

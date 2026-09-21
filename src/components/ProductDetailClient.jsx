@@ -7,35 +7,51 @@ import Image from "next/image";
 import Link from "next/link";
 import { Star, ShoppingCart, Check, ArrowLeft, ShieldCheck, Truck, RotateCcw } from "lucide-react";
 import { motion } from "framer-motion";
+import { useCartStore } from "@/store/useCartStore";
 
 export default function ProductDetailClient({ product, category }) {
   const [added, setAdded] = useState(false);
   const [selectedImage, setSelectedImage] = useState(0);
 
   // Determine alternate images based on category for realistic gallery display
-  const galleryImages = product ? [product.image] : [];
+  const galleryImages = [];
   if (product) {
-    if (product.category === "fans") {
-      galleryImages.push("/fan1.png", "/fan2.png");
-    } else if (product.category === "irons") {
-      galleryImages.push(
-        "https://images.unsplash.com/photo-1517646287270-a5a9ca602e5c?q=80&w=400",
-        "https://images.unsplash.com/photo-1585338107529-13afc5f02586?q=80&w=400"
-      );
-    } else if (product.category === "water-heaters") {
-      galleryImages.push(
-        "https://images.unsplash.com/photo-1585338107529-13afc5f02586?q=80&w=400",
-        "https://images.unsplash.com/photo-1574269909862-7e1d70bb8078?q=80&w=400"
-      );
-    } else {
-      galleryImages.push(
-        "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=400",
-        "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?q=80&w=400"
-      );
+    galleryImages.push(product.image);
+    if (product.images && Array.isArray(product.images) && product.images.length > 0) {
+      product.images.forEach(img => {
+        if (img && img !== product.image) {
+          galleryImages.push(img);
+        }
+      });
+    }
+
+    // If we still don't have at least 3 images, append placeholders to make a nice gallery
+    if (galleryImages.length < 3) {
+      if (product.category === "fans") {
+        galleryImages.push("/fan1.png", "/fan2.png");
+      } else if (product.category === "irons") {
+        galleryImages.push(
+          "https://images.unsplash.com/photo-1517646287270-a5a9ca602e5c?q=80&w=400",
+          "https://images.unsplash.com/photo-1585338107529-13afc5f02586?q=80&w=400"
+        );
+      } else if (product.category === "water-heaters") {
+        galleryImages.push(
+          "https://images.unsplash.com/photo-1585338107529-13afc5f02586?q=80&w=400",
+          "https://images.unsplash.com/photo-1574269909862-7e1d70bb8078?q=80&w=400"
+        );
+      } else {
+        galleryImages.push(
+          "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=400",
+          "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?q=80&w=400"
+        );
+      }
     }
   }
 
+  const addToCart = useCartStore((state) => state.addToCart);
+
   const handleAddToCart = () => {
+    addToCart(product);
     setAdded(true);
     setTimeout(() => {
       setAdded(false);
@@ -48,7 +64,7 @@ export default function ProductDetailClient({ product, category }) {
 
       <main className="flex-grow pt-32 pb-24">
         <div className="max-w-7xl mx-auto px-6 md:px-12 space-y-12">
-          
+
           {/* Back Navigation Link */}
           <div>
             <Link
@@ -62,12 +78,12 @@ export default function ProductDetailClient({ product, category }) {
 
           {/* Product Details Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
-            
+
             {/* Left Column: Product Showcase Multi-Image Frame */}
             <div className="lg:col-span-6 space-y-6">
-              
+
               {/* Main Image Box */}
-              <div className="relative bg-white border border-sky-100/80 rounded-[40px] p-12 shadow-md flex items-center justify-center min-h-[400px] overflow-hidden group">
+              <div className="relative bg-white border border-sky-100/80 rounded-[40px] p-8 shadow-md flex items-center justify-center aspect-[4/5] md:aspect-[3/4] w-full overflow-hidden group">
                 {/* Decorative background glow */}
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-sky-500/5 via-transparent to-transparent pointer-events-none"></div>
                 <div className="absolute w-48 h-48 rounded-full bg-orange-500/5 blur-2xl pointer-events-none"></div>
@@ -77,14 +93,13 @@ export default function ProductDetailClient({ product, category }) {
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.3 }}
-                  className="relative w-full h-72 flex items-center justify-center"
+                  className="relative w-full h-full flex items-center justify-center"
                 >
                   <Image
                     src={galleryImages[selectedImage]}
                     alt={product.name}
-                    width={260}
-                    height={260}
-                    className="object-contain drop-shadow-[0_15px_30px_rgba(0,0,0,0.15)] transition-transform duration-500 group-hover:scale-105"
+                    fill
+                    className="object-contain rounded-[32px] p-4 transition-transform duration-500 group-hover:scale-105"
                     priority
                   />
                 </motion.div>
@@ -96,18 +111,17 @@ export default function ProductDetailClient({ product, category }) {
                   <button
                     key={index}
                     onClick={() => setSelectedImage(index)}
-                    className={`w-20 h-20 bg-white border-2 rounded-2xl flex items-center justify-center p-3 overflow-hidden shadow-sm transition-all duration-300 ${
-                      selectedImage === index
+                    className={`w-20 h-20 bg-white border-2 rounded-2xl flex items-center justify-center p-3 overflow-hidden shadow-sm transition-all duration-300 ${selectedImage === index
                         ? "border-orange-500 ring-4 ring-orange-500/10 scale-95"
                         : "border-sky-100 hover:border-sky-300"
-                    }`}
+                      }`}
                   >
                     <Image
                       src={imgUrl}
                       alt={`${product.name} Preview ${index + 1}`}
                       width={60}
                       height={60}
-                      className="object-contain max-h-full max-w-full drop-shadow-sm transition-transform duration-300 hover:scale-105"
+                      className="object-contain rounded-xl max-h-full max-w-full drop-shadow-sm transition-transform duration-300 hover:scale-105"
                     />
                   </button>
                 ))}
@@ -117,7 +131,7 @@ export default function ProductDetailClient({ product, category }) {
 
             {/* Right Column: Specifications & Purchasing Panel */}
             <div className="lg:col-span-6 space-y-8 text-left">
-              
+
               {/* Category Tag & Product Name */}
               <div className="space-y-3">
                 {category && (
@@ -131,7 +145,7 @@ export default function ProductDetailClient({ product, category }) {
                 <h1 className="text-3xl md:text-4xl font-black text-sky-950 leading-tight">
                   {product.name}
                 </h1>
-                
+
                 <div className="flex items-center gap-1">
                   <Star className="w-4 h-4 fill-amber-400 stroke-amber-400" />
                   <span className="text-sm font-black text-sky-950 mt-0.5">
@@ -161,7 +175,7 @@ export default function ProductDetailClient({ product, category }) {
               </p>
 
               {/* Technical Specifications Grid */}
-              {product.specs && (
+              {product.specs && Array.isArray(product.specs) && product.specs.length > 0 && (
                 <div className="space-y-4">
                   <h3 className="text-xs font-black uppercase tracking-widest text-sky-600">
                     Technical Specifications
@@ -184,11 +198,10 @@ export default function ProductDetailClient({ product, category }) {
                   whileTap={{ scale: 0.98 }}
                   onClick={handleAddToCart}
                   disabled={added}
-                  className={`w-full py-4 rounded-2xl font-black text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg transition-all duration-300 ${
-                    added
+                  className={`w-full py-4 rounded-2xl font-black text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg transition-all duration-300 ${added
                       ? "bg-emerald-600 text-white shadow-emerald-600/10"
                       : "bg-sky-950 hover:bg-orange-500 text-white shadow-sky-950/10 hover:shadow-orange-500/15"
-                  }`}
+                    }`}
                 >
                   {added ? (
                     <>

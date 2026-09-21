@@ -20,7 +20,7 @@ export default function Values() {
       number: "02",
       title: "Modern Design",
       description:
-        "Our sleek, contemporary products blend innovation with aesthetics to elevate any space. From switches to lighting solutions, each item is crafted for both style and functionality. Redefine your space with Zigma Electricals modern designs.",
+        "Our sleek, contemporary products blend innovation with aesthetics to elevate any space. From switches to lighting solutions, each item is crafted for both style and functionality. Redefine your space with Indivolt Appliances and Zigma's modern designs.",
       icon: Palette,
       color: "from-sky-500/10 to-sky-500/5",
       iconColor: "text-sky-600",
@@ -31,7 +31,7 @@ export default function Values() {
       number: "03",
       title: "Enhanced Safety",
       description:
-        "Our products come equipped with cutting-edge protective features, including surge protection, ensuring a secure environment for your home or workplace. Count on Zigma Electricals for top-notch safety solutions tailored to your needs.",
+        "Our products come equipped with cutting-edge protective features, including surge protection, ensuring a secure environment for your home or workplace. Count on Indivolt Appliances and Zigma for top-notch safety solutions tailored to your needs.",
       icon: ShieldCheck,
       color: "from-emerald-500/10 to-emerald-500/5",
       iconColor: "text-emerald-600",
@@ -53,7 +53,7 @@ export default function Values() {
             </span>
           </div>
           <h2 className="text-3xl md:text-5xl font-black text-sky-950 leading-tight">
-            Why Zigma Electricals
+            Why Indivolt & Zigma
           </h2>
           <p className="text-base text-sky-850 font-bold max-w-xl">
             Engineered to empower modern living, our brand principles dictate every wire we wind and every contour we design.

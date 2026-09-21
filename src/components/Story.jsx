@@ -7,12 +7,12 @@ import { Target, Palette, ShieldCheck, ChevronRight } from "lucide-react";
 
 export default function Story() {
   const journeyText = {
-    title: "Zigma's Pioneering Heritage",
+    title: "Indivolt & Zigma's Heritage",
     badge: "Since 1990",
     paragraphs: [
-      "Since 1990, Indian brand Zigma has captivated the most demanding consumers with high-quality products that guarantee perfect results. Zigma offers a wide range of products that combine unrivalled technological performance, refined design, and a high level of user-friendliness.",
+      "Indivolt Appliances is proud to be the authorized seller and distributor of Zigma products. Since 1990, Indian brand Zigma has captivated the most demanding consumers with high-quality products that guarantee perfect results. Together, we offer a wide range of products that combine unrivalled technological performance, refined design, and a high level of user-friendliness.",
       "Our Mission is to ensure the day-to-day well being of its users, thanks to intelligent solutions for Fans, Room Heaters, Irons, Geysers & Immersion Rods.",
-      "As a pioneer, Zigma has worked for more than 10 years on developing eco-intelligent products. Faithful to its own values, the Zigma brand has placed eco-design and top-notch engineering at the forefront of its innovation process."
+      "As a pioneer, Zigma has worked for more than 10 years on developing eco-intelligent products. Represented by Indivolt Appliances, the Zigma brand places eco-design and top-notch engineering at the forefront of its innovation process."
     ],
     leftImage: "/zigma.avif",
   };
@@ -32,7 +32,7 @@ export default function Story() {
       id: "design",
       title: "Modern Design",
       description:
-        "Our sleek, contemporary products blend innovation with aesthetics to elevate any space. From switches to lighting solutions, each item is crafted for both style and functionality. Redefine your space with Zigma Electricals modern designs.",
+        "Our sleek, contemporary products blend innovation with aesthetics to elevate any space. From switches to lighting solutions, each item is crafted for both style and functionality. Redefine your space with Indivolt Appliances and Zigma's modern designs.",
       icon: Palette,
       bgColor: "bg-sky-500/10",
       iconColor: "text-sky-600",
@@ -42,7 +42,7 @@ export default function Story() {
       id: "safety",
       title: "Enhanced Safety",
       description:
-        "Our products come equipped with cutting-edge protective features, including surge protection, ensuring a secure environment for your home or workplace. Count on Zigma Electricals for top-notch safety solutions tailored to your needs.",
+        "Our products come equipped with cutting-edge protective features, including surge protection, ensuring a secure environment for your home or workplace. Count on Indivolt Appliances and Zigma for top-notch safety solutions tailored to your needs.",
       icon: ShieldCheck,
       bgColor: "bg-emerald-500/10",
       iconColor: "text-emerald-600",

@@ -1,9 +1,12 @@
-import { products, categories } from "@/data/products";
+import { getProducts, getCategories } from "@/utils/api";
 
 export const dynamic = 'force-static';
 
 export default async function sitemap() {
   const baseUrl = "https://indivoltappliances.com";
+
+  const categories = await getCategories();
+  const products = await getProducts();
 
   // Base routes
   const routes = [
@@ -17,7 +20,7 @@ export default async function sitemap() {
 
   // Category routes
   const categoryRoutes = categories.map((category) => ({
-    url: `${baseUrl}/category/${category.slug}`,
+    url: `${baseUrl}/category/${category.name.toLowerCase()}`,
     lastModified: new Date().toISOString(),
     changeFrequency: "monthly",
     priority: 0.8,

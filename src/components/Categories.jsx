@@ -1,59 +1,28 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
+import { getCategories } from "@/utils/api";
 
 export default function Categories() {
   // 9 Circular Categories
-  const categories = [
-    {
-      name: "Irons",
-      image: "/catogeries/irons.png",
-      link: "/category/irons",
-    },
-    {
-      name: "Fans",
-      image: "/catogeries/fan.png",
-      link: "/category/fans",
-    },
-    {
-      name: "Water Heaters",
-      image: "/catogeries/waterheeter.avif",
-      link: "/category/water-heaters",
-    },
-    {
-      name: "Kettles",
-      image: "/catogeries/Kettles.png",
-      link: "/category/kettles",
-    },
-    {
-      name: "Room Heaters",
-      image: "/catogeries/Room Heaters.png",
-      link: "/category/room-heaters",
-    },
-    {
-      name: "Industrial Motors",
-      image: "/catogeries/Industrial Motors.png",
-      link: "/category/motors",
-    },
-    {
-      name: "Mixers",
-      image: "/catogeries/Mixers.png",
-      link: "/category/mixers",
-    },
-    {
-      name: "Hot Plate",
-      image: "/catogeries/Hot Plate.png",
-      link: "/category/hot-plate",
-    },
-    {
-      name: "Water Pump",
-      image: "/catogeries/pump.png",
-      link: "/category/water-pump",
-    },
-  ];
+  const [dbCategories, setDbCategories] = useState([]);
+
+  useEffect(() => {
+    async function loadCategories() {
+      const cats = await getCategories();
+      const mapped = cats.map(cat => ({
+        name: cat.name,
+        image: cat.imageUrl,
+        link: `/category/${cat.name.toLowerCase().replace(/ /g, '-')}`
+      }));
+      setDbCategories(mapped);
+    }
+    loadCategories();
+  }, []);
 
   // 4 Featured Collection Cards (Scooped Notch Corner)
   const featuredCollections = [
@@ -111,7 +80,7 @@ export default function Categories() {
 
         {/* Circular Categories Row */}
         <div className="flex overflow-x-auto pb-6 pt-2 md:pb-0 scrollbar-hide md:grid md:grid-cols-3 lg:grid-cols-9 gap-4 md:gap-6 justify-start md:justify-center border-b border-sky-100/50 pb-10">
-          {categories.map((cat, index) => (
+          {dbCategories.map((cat, index) => (
             <motion.div
               key={cat.name}
               initial={{ opacity: 0, scale: 0.9, y: 15 }}
@@ -220,7 +189,7 @@ export default function Categories() {
                   <div className="absolute inset-0 flex items-center justify-center">
                     <Link
                       href={col.link}
-                      aria-label={`Explore Zigma's ${col.title} collection`}
+                      aria-label={`Explore the ${col.title} collection`}
                       className="w-[72px] h-[72px] bg-sky-50 group-hover:bg-orange-500 text-sky-900 group-hover:text-white rounded-full flex items-center justify-center transition-all duration-300 shadow-md group-hover:scale-105"
                     >
                       <ArrowUpRight className="w-6 h-6 stroke-[3]" />
