@@ -1,4 +1,5 @@
 import { getCategories, getProducts } from "@/utils/api";
+import { categories as fallbackCategories, products as fallbackProducts } from "@/data/products";
 import CategoryDetailClient from "@/components/CategoryDetailClient";
 import { notFound } from "next/navigation";
 
@@ -12,19 +13,19 @@ function findCategoryBySlug(categories, slug) {
   const decodedStripped = stripS(decoded);
 
   return categories.find((cat) => {
-    const catNameLower = cat.name.toLowerCase();
-    const catNameNormalized = catNameLower.replace(/ /g, '-');
-    const catIdLower = cat.id.toLowerCase();
+    const catName = (cat.name || cat.label || "").toLowerCase();
+    const catNameNormalized = catName.replace(/ /g, '-');
+    const catId = (cat.id || "").toLowerCase();
     
-    const catNameLowerStripped = stripS(catNameLower);
+    const catNameLowerStripped = stripS(catName);
     const catNameNormalizedStripped = stripS(catNameNormalized);
-    const catIdLowerStripped = stripS(catIdLower);
+    const catIdLowerStripped = stripS(catId);
 
-    return catNameLower === decoded || 
+    return catName === decoded || 
            catNameNormalized === normalized || 
-           catIdLower === ('cat-' + normalized) ||
-           catIdLower === decoded ||
-           catIdLower === ('cat-' + decoded) ||
+           catId === ('cat-' + normalized) ||
+           catId === decoded ||
+           catId === ('cat-' + decoded) ||
            catNameLowerStripped === decodedStripped ||
            catNameNormalizedStripped === normalizedStripped ||
            catIdLowerStripped === ('cat-' + normalizedStripped) ||
@@ -33,17 +34,38 @@ function findCategoryBySlug(categories, slug) {
 }
 
 export async function generateStaticParams() {
-  const categories = await getCategories();
-  return categories.map((cat) => ({
-    slug: cat.name.toLowerCase().replace(/ /g, '-'),
-  }));
+  const dbCategories = await getCategories();
+  const allCategories = dbCategories && dbCategories.length > 0 ? dbCategories : fallbackCategories;
+  
+  const slugs = new Set([
+    ...fallbackCategories.map((c) => c.slug || c.label.toLowerCase().replace(/ /g, '-')),
+    ...(dbCategories || []).map((c) => (c.name || "").toLowerCase().replace(/ /g, '-')),
+  ]);
+
+  return Array.from(slugs)
+    .filter(Boolean)
+    .map((slug) => ({
+      slug,
+    }));
 }
 
 export async function generateMetadata({ params }) {
   const resolvedParams = await params;
   const slug = resolvedParams.slug;
-  const categories = await getCategories();
-  const category = findCategoryBySlug(categories, slug);
+  
+  let categories = await getCategories();
+  if (!categories || categories.length === 0) {
+    categories = fallbackCategories.map((c) => ({
+      id: c.id,
+      name: c.label,
+      imageUrl: c.image,
+    }));
+  }
+  
+  let category = findCategoryBySlug(categories, slug);
+  if (!category) {
+    category = findCategoryBySlug(fallbackCategories.map(c => ({ id: c.id, name: c.label, imageUrl: c.image })), slug);
+  }
 
   if (!category) {
     return {
@@ -51,16 +73,18 @@ export async function generateMetadata({ params }) {
     };
   }
 
+  const catName = category.name || category.label || "Appliances";
+
   return {
-    title: `${category.name} Collection | Indivolt Premium Appliances`,
-    description: `Browse the finest range of Indivolt ${category.name.toLowerCase()}. Engineered for efficiency, performance, and long-lasting durability.`,
+    title: `${catName} Collection | Indivolt Premium Appliances`,
+    description: `Browse the finest range of Indivolt ${catName.toLowerCase()}. Engineered for efficiency, performance, and long-lasting durability.`,
     openGraph: {
-      title: `${category.name} Collection | Indivolt`,
-      description: `Browse the finest range of Indivolt ${category.name.toLowerCase()}.`,
+      title: `${catName} Collection | Indivolt`,
+      description: `Browse the finest range of Indivolt ${catName.toLowerCase()}.`,
       images: [
         {
-          url: category.imageUrl,
-          alt: category.name,
+          url: category.imageUrl || category.image,
+          alt: catName,
         },
       ],
     },
@@ -71,35 +95,52 @@ export default async function CategoryPage({ params }) {
   const resolvedParams = await params;
   const slug = resolvedParams.slug;
 
-  const categories = await getCategories();
-  const category = findCategoryBySlug(categories, slug);
+  let categories = await getCategories();
+  if (!categories || categories.length === 0) {
+    categories = fallbackCategories.map((c) => ({
+      id: c.id,
+      name: c.label,
+      imageUrl: c.image,
+    }));
+  }
+  
+  let category = findCategoryBySlug(categories, slug);
+  if (!category) {
+    category = findCategoryBySlug(fallbackCategories.map(c => ({ id: c.id, name: c.label, imageUrl: c.image })), slug);
+  }
   
   if (!category) {
     notFound();
   }
   
-  const filteredProducts = await getProducts({ category: category.name });
+  const catName = category.name || category.label;
+  let filteredProducts = await getProducts({ category: catName });
+  if (!filteredProducts || filteredProducts.length === 0) {
+    filteredProducts = fallbackProducts.filter(
+      (p) => p.category.toLowerCase() === (category.id || catName || "").toLowerCase()
+    );
+  }
 
   // Map category data to format expected by CategoryDetailClient (id, label, image)
   const mappedCategory = category ? {
     id: category.id,
-    label: category.name,
-    slug: category.name.toLowerCase(),
-    image: category.imageUrl
+    label: category.name || category.label,
+    slug: (category.name || category.slug || category.label || "").toLowerCase(),
+    image: category.imageUrl || category.image
   } : null;
 
   // Map products data to format expected by CategoryDetailClient (with specs and badges)
   const mappedProducts = filteredProducts.map(prod => ({
     id: String(prod.id),
-    category: prod.category.toLowerCase(),
+    category: (prod.category || "").toLowerCase(),
     name: prod.name,
     price: prod.price,
-    originalPrice: prod.mrp,
-    badge: prod.metadata?.badge || null,
-    image: prod.imageUrl,
-    rating: prod.metadata?.rating || 5.0,
+    originalPrice: prod.mrp || prod.originalPrice,
+    badge: prod.metadata?.badge || prod.badge || null,
+    image: prod.imageUrl || prod.image,
+    rating: prod.metadata?.rating || prod.rating || 5.0,
     description: prod.description,
-    specs: prod.metadata?.specs || []
+    specs: Array.isArray(prod.metadata?.specs) ? prod.metadata.specs : (Array.isArray(prod.specs) ? prod.specs : [])
   }));
 
   return (
