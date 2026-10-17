@@ -231,8 +231,8 @@ export default function ProductDetailClient({ product, category }) {
                   {brandName}
                 </span>
                 
-                {/* Editorial Serif Title */}
-                <h1 className="font-serif text-3xl sm:text-4xl lg:text-[42px] font-normal text-[#1e1e24] leading-[1.16] tracking-tight mt-1.5">
+                {/* Product Title with original brand font */}
+                <h1 className="text-3xl sm:text-4xl lg:text-[40px] font-black text-sky-950 leading-[1.2] tracking-tight mt-1.5">
                   {product?.name || "zigma TIKTIK Quiet Portable Table Fan"}
                 </h1>
               </div>
