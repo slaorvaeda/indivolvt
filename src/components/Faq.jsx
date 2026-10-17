@@ -10,20 +10,24 @@ export default function Faq() {
 
   const faqs = [
     {
+      question: "Why should I upgrade to a Zigma BLDC Ceiling Fan?",
+      answer: "Zigma BLDC ceiling fans feature advanced Brushless DC motors that use only 28W to 32W of electricity, cutting cooling costs by up to 65% compared to conventional 75W fans. They offer whisper-silent operation at 28 dB, 6-speed smart remote controls, sleep timers, and uninterrupted runtime even on home inverters.",
+    },
+    {
+      question: "What are the features of Zigma high-speed wall fans (wallfan)?",
+      answer: "Zigma wall fans are engineered for maximum air delivery in compact spaces like kitchens, restaurants, and living rooms. Powered by a 100% pure copper high-speed motor producing up to 2100 RPM, they feature 90° motorized oscillation and dual pull-cord controls for easy speed and swing adjustment.",
+    },
+    {
+      question: "How does the Zigma digital air fryer (airfryer) work?",
+      answer: "The Zigma digital air fryer uses 360° rapid cyclonic air circulation technology to fry, bake, grill, and roast with up to 85% less oil than conventional deep frying. It comes with 8 one-touch digital preset menus, a non-stick dishwasher-safe basket, and precise temperature regulation.",
+    },
+    {
       question: "What makes Indivolt appliances more energy-efficient?",
-      answer: "Indivolt uses custom copper-wound brushless DC (BLDC) motors paired with intelligent micro-controllers. Instead of drawing maximum current continuously, our devices scale power draw dynamically based on usage context, reducing consumption by up to 40% compared to typical appliances.",
+      answer: "Indivolt uses custom copper-wound brushless DC (BLDC) motors paired with intelligent micro-controllers. Instead of drawing maximum current continuously, our devices scale power draw dynamically based on usage context, reducing consumption by up to 65% compared to typical appliances.",
     },
     {
-      question: "Are your appliances compatible with Apple HomeKit & Google Home?",
-      answer: "Yes! All smart-labelled Indivolt appliances are built using the Matter smart home standard, meaning they work natively with Apple Home, Google Assistant, Amazon Alexa, and Samsung SmartThings without any proprietary bridge.",
-    },
-    {
-      question: "What does the 10-Year warranty cover?",
-      answer: "Our 10-year warranty covers the core mechanical components of our devices—specifically the brushless motors in our cooling systems/fans and the solid-state breakers in our distribution boards. Other electronic sub-boards are covered by a standard 2-year warranty.",
-    },
-    {
-      question: "Can I customize the finish of switch plates and modular sockets?",
-      answer: "Absolutely. We offer premium switch finishes including brushed aluminum, tempered black glass, and custom wood panels to seamlessly fit into your room design. Contact our sales team for custom material integrations.",
+      question: "How do I claim warranty for Zigma products on Indivolt?",
+      answer: "All Zigma products purchased through Indivolt carry an official manufacturer warranty (from 1 to 10 years depending on the model). For service, simply reach out to Indivolt customer support with your digital invoice for quick doorstep service and genuine part replacement across India.",
     },
   ];
 
