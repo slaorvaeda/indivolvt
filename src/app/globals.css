@@ -1,36 +1,40 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..700;1,400..700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
 :root {
   --background: #ffffff;
-  --foreground: #020617; /* Deep Navy slate */
+  --foreground: #1e1e24;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Plus Jakarta Sans', Arial, Helvetica, sans-serif;
+}
+
+.font-serif {
+  font-family: 'Playfair Display', Georgia, serif;
 }
 
 /* Custom Inverted Border Radius Notch Classes */
 .inverted-radius-top {
   position: absolute;
   right: 0;
-  bottom: 96px; /* Matches notch height */
+  bottom: 96px;
   width: 24px;
   height: 24px;
   background: transparent;
   border-bottom-right-radius: 24px;
-  box-shadow: 12px 12px 0 12px #f8fafc; /* Matches section background (#f8fafc) */
+  box-shadow: 12px 12px 0 12px #f8fafc;
 }
 
 .inverted-radius-left {
   position: absolute;
-  right: 96px; /* Matches notch width */
+  right: 96px;
   bottom: 0;
   width: 24px;
   height: 24px;
   background: transparent;
   border-bottom-right-radius: 24px;
-  box-shadow: 12px 12px 0 12px #f8fafc; /* Matches section background (#f8fafc) */
+  box-shadow: 12px 12px 0 12px #f8fafc;
 }
-
