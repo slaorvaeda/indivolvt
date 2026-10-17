@@ -23,6 +23,9 @@ jobs:
         run: npm ci
 
       - name: Build Next.js App
+        env:
+          NEXT_PUBLIC_API_URL: https://api.clickkarte.com/api
+          NEXT_PUBLIC_STORE_ID: indivolt-store-uuid-5555-6666
         run: npm run build
 
       - name: Package Build Files

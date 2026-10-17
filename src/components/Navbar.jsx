@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Search, ShoppingBag, Menu, X, ChevronDown, Trash2, Plus, Minus } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { getCategories } from "@/utils/api";
+import { categories as fallbackCategories } from "@/data/products";
 import { useCartStore } from "@/store/useCartStore";
 
 const emptySubscribe = () => () => {};
@@ -55,19 +56,35 @@ export default function Navbar() {
     { name: "Products", href: "/#products" },
   ];
 
-  const [dbCategories, setDbCategories] = useState([]);
+  const [dbCategories, setDbCategories] = useState(() =>
+    fallbackCategories.map((cat) => ({
+      name: cat.label || cat.name,
+      href: `/category/${(cat.slug || cat.label || cat.name).toLowerCase().replace(/ /g, "-")}`,
+      image: cat.image || cat.imageUrl,
+    }))
+  );
 
   useEffect(() => {
+    let isMounted = true;
     async function loadCategories() {
-      const cats = await getCategories();
-      const mapped = cats.map(cat => ({
-        name: cat.name,
-        href: `/category/${cat.name.toLowerCase().replace(/ /g, '-')}`,
-        image: cat.imageUrl
-      }));
-      setDbCategories(mapped);
+      try {
+        const cats = await getCategories();
+        if (Array.isArray(cats) && cats.length > 0 && isMounted) {
+          const mapped = cats.map((cat) => ({
+            name: cat.name || cat.label,
+            href: `/category/${(cat.slug || cat.name || cat.label).toLowerCase().replace(/ /g, "-")}`,
+            image: cat.imageUrl || cat.image,
+          }));
+          setDbCategories(mapped);
+        }
+      } catch (err) {
+        console.warn("Failed to load categories in Navbar:", err);
+      }
     }
     loadCategories();
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   return (

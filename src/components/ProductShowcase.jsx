@@ -3,33 +3,49 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { getProducts } from "@/utils/api";
+import { products as fallbackProducts } from "@/data/products";
 import { useCartStore } from "@/store/useCartStore";
 import ProductCard from "@/components/ProductCard";
+
+const mapProductItem = (prod) => ({
+  id: String(prod.id),
+  category: (prod.category || "products").toLowerCase(),
+  name: prod.name,
+  price: Number(prod.price) || 0,
+  originalPrice: prod.mrp || prod.originalPrice || null,
+  badge: prod.metadata?.badge || prod.badge || null,
+  image: prod.imageUrl || prod.image || "/catogeries/fan.png",
+  rating: prod.metadata?.rating || prod.rating || 5.0,
+  description: prod.description || "",
+});
 
 export default function ProductShowcase() {
   const [activeTab, setActiveTab] = useState("all");
   const [addedProductId, setAddedProductId] = useState(null);
-  const [dbProducts, setDbProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [dbProducts, setDbProducts] = useState(() => fallbackProducts.map(mapProductItem));
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    let isMounted = true;
     async function loadProducts() {
-      const prods = await getProducts();
-      const mapped = prods.map((prod) => ({
-        id: String(prod.id),
-        category: prod.category?.toLowerCase() || "products",
-        name: prod.name,
-        price: prod.price,
-        originalPrice: prod.mrp,
-        badge: prod.metadata?.badge || null,
-        image: prod.imageUrl,
-        rating: prod.metadata?.rating || 5.0,
-        description: prod.description,
-      }));
-      setDbProducts(mapped);
-      setLoading(false);
+      try {
+        const prods = await getProducts();
+        if (Array.isArray(prods) && prods.length > 0 && isMounted) {
+          const mapped = prods.map(mapProductItem);
+          setDbProducts(mapped);
+        }
+      } catch (err) {
+        console.warn("Failed to load products from API:", err);
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
     }
     loadProducts();
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const categories = [

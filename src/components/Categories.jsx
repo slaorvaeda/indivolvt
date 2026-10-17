@@ -6,22 +6,35 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { getCategories } from "@/utils/api";
+import { categories as fallbackCategories } from "@/data/products";
 
 export default function Categories() {
-  // 9 Circular Categories
-  const [dbCategories, setDbCategories] = useState([]);
+  // 9 Circular Categories (initialized with fallback so it is never empty)
+  const [dbCategories, setDbCategories] = useState(() =>
+    fallbackCategories.map((cat) => ({
+      name: cat.label || cat.name,
+      image: cat.image || cat.imageUrl,
+      link: `/category/${(cat.slug || cat.label || cat.name).toLowerCase().replace(/ /g, "-")}`,
+    }))
+  );
 
   useEffect(() => {
+    let isMounted = true;
     async function loadCategories() {
       const cats = await getCategories();
-      const mapped = cats.map(cat => ({
-        name: cat.name,
-        image: cat.imageUrl,
-        link: `/category/${cat.name.toLowerCase().replace(/ /g, '-')}`
-      }));
-      setDbCategories(mapped);
+      if (Array.isArray(cats) && cats.length > 0 && isMounted) {
+        const mapped = cats.map((cat) => ({
+          name: cat.name || cat.label,
+          image: cat.imageUrl || cat.image,
+          link: `/category/${(cat.slug || cat.name || cat.label).toLowerCase().replace(/ /g, "-")}`,
+        }));
+        setDbCategories(mapped);
+      }
     }
     loadCategories();
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   // 4 Featured Collection Cards (Scooped Notch Corner)
