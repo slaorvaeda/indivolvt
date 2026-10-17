@@ -11,6 +11,10 @@ DirectoryIndex index.html index.php
   RewriteCond %{HTTPS} off
   RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
+  # Redirect space-encoded category URLs (e.g. /category/water%20pump/) to hyphenated (/category/water-pump/)
+  RewriteCond %{THE_REQUEST} ^[A-Z]{3,}\s+/category/([^\s/]+)%20([^\s/]+)/? [NC]
+  RewriteRule ^ https://%{HTTP_HOST}/category/%1-%2/ [R=301,L]
+
   # Serve existing file or directory directly
   RewriteCond %{REQUEST_FILENAME} -f [OR]
   RewriteCond %{REQUEST_FILENAME} -d

@@ -48,7 +48,11 @@ export default function ProductDetailClient({ product, category }) {
           {/* Back Navigation Link */}
           <div>
             <Link
-              href={category ? `/category/${category.slug}` : "/#categories"}
+              href={
+                category && category.slug
+                  ? `/category/${category.slug.toLowerCase().trim().replace(/[\s_]+/g, "-")}/`
+                  : "/#categories"
+              }
               className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest text-sky-600 hover:text-orange-500 transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
@@ -116,7 +120,11 @@ export default function ProductDetailClient({ product, category }) {
               <div className="space-y-3">
                 {category && (
                   <Link
-                    href={`/category/${category.slug}`}
+                    href={
+                      category.slug
+                        ? `/category/${category.slug.toLowerCase().trim().replace(/[\s_]+/g, "-")}/`
+                        : "/#categories"
+                    }
                     className="inline-block px-3 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-600 text-[10px] font-black uppercase tracking-wider hover:bg-orange-500 hover:text-white transition-colors"
                   >
                     {category.label}

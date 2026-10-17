@@ -95,17 +95,32 @@ export default async function ProductDetailPage({ params }) {
       }
     : null;
 
-  const category = categories.find(
-    (cat) => (cat.name || "").toLowerCase() === (product?.category || "").toLowerCase()
-  );
+  const prodCatNorm = (product?.category || "").toLowerCase().replace(/[-_ ]+/g, '');
+  const category = categories.find((cat) => {
+    const catNameNorm = (cat.name || "").toLowerCase().replace(/[-_ ]+/g, '');
+    const catSlugNorm = (cat.slug || "").toLowerCase().replace(/[-_ ]+/g, '');
+    const catIdNorm = (cat.id || "").toLowerCase().replace(/^(cat-)/, '').replace(/[-_ ]+/g, '');
+    return catNameNorm === prodCatNorm || catSlugNorm === prodCatNorm || catIdNorm === prodCatNorm;
+  });
+
+  const catSlug = (category?.slug || category?.name || category?.label || product?.category || "")
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, '-');
+
   const mappedCategory = category
     ? {
         id: category.id,
-        label: category.name || category.label,
-        slug: (category.name || category.slug || "").toLowerCase(),
+        label: category.name || category.label || product?.category,
+        slug: catSlug,
         image: category.imageUrl || category.image,
       }
-    : null;
+    : (product?.category ? {
+        id: product.category,
+        label: product.category,
+        slug: catSlug,
+        image: "/catogeries/fan.png",
+      } : null);
 
   return (
     <ProductDetailClient

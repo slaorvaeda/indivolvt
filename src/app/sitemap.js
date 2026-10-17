@@ -19,16 +19,19 @@ export default async function sitemap() {
   ];
 
   // Category routes
-  const categoryRoutes = categories.map((category) => ({
-    url: `${baseUrl}/category/${category.name.toLowerCase()}`,
-    lastModified: new Date().toISOString(),
-    changeFrequency: "monthly",
-    priority: 0.8,
-  }));
+  const categoryRoutes = categories.map((category) => {
+    const slug = (category.slug || category.name || category.label || "").toLowerCase().trim().replace(/[\s_]+/g, "-");
+    return {
+      url: `${baseUrl}/category/${slug}/`,
+      lastModified: new Date().toISOString(),
+      changeFrequency: "monthly",
+      priority: 0.8,
+    };
+  });
 
   // Product routes
   const productRoutes = products.map((product) => ({
-    url: `${baseUrl}/product/${product.id}`,
+    url: `${baseUrl}/product/${product.id}/`,
     lastModified: new Date().toISOString(),
     changeFrequency: "weekly",
     priority: 0.7,

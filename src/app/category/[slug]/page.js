@@ -125,7 +125,7 @@ export default async function CategoryPage({ params }) {
   const mappedCategory = category ? {
     id: category.id,
     label: category.name || category.label,
-    slug: (category.name || category.slug || category.label || "").toLowerCase(),
+    slug: (category.slug || category.name || category.label || "").toLowerCase().trim().replace(/[\s_]+/g, "-"),
     image: category.imageUrl || category.image
   } : null;
 
