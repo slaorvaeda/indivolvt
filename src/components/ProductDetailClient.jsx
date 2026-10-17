@@ -13,38 +13,18 @@ export default function ProductDetailClient({ product, category }) {
   const [added, setAdded] = useState(false);
   const [selectedImage, setSelectedImage] = useState(0);
 
-  // Determine alternate images based on category for realistic gallery display
+  // Build gallery strictly from uploaded database images
   const galleryImages = [];
   if (product) {
-    galleryImages.push(product.image);
-    if (product.images && Array.isArray(product.images) && product.images.length > 0) {
+    if (product.image) {
+      galleryImages.push(product.image);
+    }
+    if (Array.isArray(product.images) && product.images.length > 0) {
       product.images.forEach(img => {
-        if (img && img !== product.image) {
+        if (img && typeof img === 'string' && !galleryImages.includes(img)) {
           galleryImages.push(img);
         }
       });
-    }
-
-    // If we still don't have at least 3 images, append placeholders to make a nice gallery
-    if (galleryImages.length < 3) {
-      if (product.category === "fans") {
-        galleryImages.push("/fan1.png", "/fan2.png");
-      } else if (product.category === "irons") {
-        galleryImages.push(
-          "https://images.unsplash.com/photo-1517646287270-a5a9ca602e5c?q=80&w=400",
-          "https://images.unsplash.com/photo-1585338107529-13afc5f02586?q=80&w=400"
-        );
-      } else if (product.category === "water-heaters") {
-        galleryImages.push(
-          "https://images.unsplash.com/photo-1585338107529-13afc5f02586?q=80&w=400",
-          "https://images.unsplash.com/photo-1574269909862-7e1d70bb8078?q=80&w=400"
-        );
-      } else {
-        galleryImages.push(
-          "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=400",
-          "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?q=80&w=400"
-        );
-      }
     }
   }
 

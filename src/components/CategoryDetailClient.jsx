@@ -7,6 +7,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Star, ShoppingCart, Check, ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
+import { useCartStore } from "@/store/useCartStore";
 import ProductCard from "@/components/ProductCard";
 
 export default function CategoryDetailClient({ category, filteredProducts }) {
@@ -186,7 +187,7 @@ export default function CategoryDetailClient({ category, filteredProducts }) {
             <div className="bg-white border border-sky-100 rounded-3xl p-12 text-center space-y-4 shadow-sm">
               <h3 className="text-xl font-black text-sky-950">No Products Available</h3>
               <p className="text-xs font-bold text-sky-850">
-                We're currently updating our catalog. Check back soon for new {category.label.toLowerCase()} models!
+                We&apos;re currently updating our catalog. Check back soon for new {category.label.toLowerCase()} models!
               </p>
             </div>
           ) : (

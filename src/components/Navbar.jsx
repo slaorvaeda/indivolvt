@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useSyncExternalStore } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Search, ShoppingBag, Menu, X, ChevronDown, Trash2, Plus, Minus } from "lucide-react";
@@ -8,12 +8,14 @@ import { motion, AnimatePresence } from "framer-motion";
 import { getCategories } from "@/utils/api";
 import { useCartStore } from "@/store/useCartStore";
 
+const emptySubscribe = () => () => {};
+
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  const mounted = useSyncExternalStore(emptySubscribe, () => true, () => false);
 
   const cart = useCartStore((state) => state.cart);
   const updateQuantity = useCartStore((state) => state.updateQuantity);
@@ -21,10 +23,6 @@ export default function Navbar() {
   const getTotalItems = useCartStore((state) => state.getTotalItems);
   const getTotalPrice = useCartStore((state) => state.getTotalPrice);
   const clearCart = useCartStore((state) => state.clearCart);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   const totalItems = mounted ? getTotalItems() : 0;
 

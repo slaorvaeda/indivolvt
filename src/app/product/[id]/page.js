@@ -5,16 +5,13 @@ import { notFound } from "next/navigation";
 
 export async function generateStaticParams() {
   const dbProducts = await getProducts();
-  const allProducts = dbProducts && dbProducts.length > 0 ? dbProducts : fallbackProducts;
-  
-  // Combine all IDs to ensure full static generation coverage
-  const ids = new Set([
-    ...fallbackProducts.map((p) => String(p.id)),
-    ...(dbProducts || []).map((p) => String(p.id)),
-  ]);
-
-  return Array.from(ids).map((id) => ({
-    id,
+  if (dbProducts && dbProducts.length > 0) {
+    return dbProducts.map((p) => ({
+      id: String(p.id),
+    }));
+  }
+  return fallbackProducts.map((p) => ({
+    id: String(p.id),
   }));
 }
 
@@ -87,11 +84,14 @@ export default async function ProductDetailPage({ params }) {
           : Array.isArray(product.specs)
           ? product.specs
           : [],
-        images: Array.isArray(product.metadata?.images)
-          ? product.metadata.images
-          : Array.isArray(product.images)
-          ? product.images
-          : [],
+        images: [
+          ...(product.imageUrl ? [product.imageUrl] : []),
+          ...(Array.isArray(product.metadata?.images)
+            ? product.metadata.images
+            : Array.isArray(product.images)
+            ? product.images
+            : [])
+        ].filter((img, idx, arr) => img && arr.indexOf(img) === idx),
       }
     : null;
 
