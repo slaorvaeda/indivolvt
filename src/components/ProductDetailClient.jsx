@@ -68,11 +68,11 @@ export default function ProductDetailClient({ product, category }) {
 
   // Ensure at least fallback images if product has only 1 image
   if (galleryImages.length === 1) {
-    if (galleryImages[0] !== "/assets/fan1.png") galleryImages.push("/assets/fan1.png");
-    if (galleryImages[0] !== "/assets/fan2.png") galleryImages.push("/assets/fan2.png");
+    if (galleryImages[0] !== "/fan1.png") galleryImages.push("/fan1.png");
+    if (galleryImages[0] !== "/fan2.png") galleryImages.push("/fan2.png");
     if (galleryImages[0] !== "/catogeries/fan.png") galleryImages.push("/catogeries/fan.png");
   } else if (galleryImages.length === 0) {
-    galleryImages.push("/catogeries/fan.png", "/assets/fan1.png", "/assets/fan2.png");
+    galleryImages.push("/catogeries/fan.png", "/fan1.png", "/fan2.png");
   }
 
   const addToCart = useCartStore((state) => state.addToCart);
@@ -107,12 +107,12 @@ export default function ProductDetailClient({ product, category }) {
   const discountPercent = Math.round(((currentMrp - currentPrice) / currentMrp) * 100);
 
   // Clean brand eyebrow text
-  const brandName = "ZIGMA APPLIANCES";
+  const brandName = category?.label?.toUpperCase() || product?.category?.toUpperCase() || "INDIVOLT APPLIANCES";
 
   return (
     <div className="flex flex-col min-h-screen bg-white text-zinc-900 font-sans selection:bg-[#e3edd3] selection:text-[#2c4714]">
       {/* 1. Top Announcement Bar matching the reference banner */}
-      <div className="w-full bg-[#372948] text-white py-2.5 px-4 text-center text-xs font-medium tracking-wide z-40 relative">
+      <div className="w-full bg-[#392742] text-white py-2.5 px-4 text-center text-xs font-medium tracking-wide z-40 relative">
         <div className="max-w-7xl mx-auto flex items-center justify-center gap-2">
           <span>Free domestic shipping on orders over ₹999</span>
           <span className="opacity-50">•</span>
@@ -126,15 +126,15 @@ export default function ProductDetailClient({ product, category }) {
       <main className="flex-grow pt-28 pb-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12">
 
-          {/* Breadcrumb / Back button */}
+          {/* Breadcrumb / Simple Back button */}
           <div className="mb-8">
             <button
               type="button"
               onClick={handleBack}
-              className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-zinc-500 hover:text-zinc-900 transition-colors group cursor-pointer"
+              className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-zinc-400 hover:text-zinc-900 transition-colors group cursor-pointer"
             >
               <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-1" />
-              <span>Back to Products</span>
+              <span>Back</span>
             </button>
           </div>
 
@@ -145,27 +145,27 @@ export default function ProductDetailClient({ product, category }) {
             <div className="lg:col-span-7 flex flex-col-reverse sm:flex-row gap-4 sm:gap-6 items-start">
               
               {/* Vertical Thumbnails Carousel */}
-              <div className="flex sm:flex-col items-center gap-3 w-full sm:w-20 shrink-0 overflow-x-auto sm:overflow-visible pb-2 sm:pb-0">
+              <div className="flex sm:flex-col items-center gap-2.5 w-full sm:w-20 shrink-0 overflow-x-auto sm:overflow-visible pb-2 sm:pb-0">
                 <button
                   type="button"
                   onClick={handlePrevImage}
-                  className="hidden sm:flex w-8 h-8 rounded-full border border-zinc-200 items-center justify-center text-zinc-500 hover:text-zinc-900 hover:border-zinc-400 transition-colors cursor-pointer"
+                  className="hidden sm:flex w-7 h-7 rounded-full border border-zinc-200 items-center justify-center text-zinc-400 hover:text-zinc-900 hover:border-zinc-400 transition-colors cursor-pointer"
                   aria-label="Previous image"
                 >
-                  <ChevronUp className="w-4 h-4" />
+                  <ChevronUp className="w-3.5 h-3.5" />
                 </button>
 
-                <div className="flex sm:flex-col gap-3">
+                <div className="flex sm:flex-col gap-2.5">
                   {galleryImages.map((imgUrl, index) => {
                     const isSelected = selectedImage === index;
                     return (
                       <button
                         key={index}
                         onClick={() => setSelectedImage(index)}
-                        className={`relative w-16 h-16 sm:w-18 sm:h-20 rounded-xl bg-white p-1.5 transition-all cursor-pointer overflow-hidden flex items-center justify-center ${
+                        className={`relative w-16 h-16 sm:w-20 sm:h-20 aspect-square rounded-lg p-1.5 transition-all cursor-pointer overflow-hidden flex items-center justify-center ${
                           isSelected
-                            ? "border-2 border-[#372948] ring-2 ring-[#372948]/15 shadow-sm"
-                            : "border border-zinc-200 hover:border-zinc-400 opacity-80 hover:opacity-100"
+                            ? "border border-zinc-900 bg-white shadow-xs"
+                            : "border border-transparent bg-[#f5f6f4] hover:border-zinc-300 opacity-80 hover:opacity-100"
                         }`}
                       >
                         <Image
@@ -182,19 +182,19 @@ export default function ProductDetailClient({ product, category }) {
                 <button
                   type="button"
                   onClick={handleNextImage}
-                  className="hidden sm:flex w-8 h-8 rounded-full border border-zinc-200 items-center justify-center text-zinc-500 hover:text-zinc-900 hover:border-zinc-400 transition-colors cursor-pointer"
+                  className="hidden sm:flex w-7 h-7 rounded-full border border-zinc-200 items-center justify-center text-zinc-400 hover:text-zinc-900 hover:border-zinc-400 transition-colors cursor-pointer"
                   aria-label="Next image"
                 >
-                  <ChevronDown className="w-4 h-4" />
+                  <ChevronDown className="w-3.5 h-3.5" />
                 </button>
               </div>
 
               {/* Main Product Canvas Box */}
-              <div className="relative w-full aspect-square sm:aspect-[4/5] bg-[#f5f6f4] rounded-2xl flex items-center justify-center p-8 sm:p-12 overflow-hidden group">
+              <div className="relative w-full aspect-square bg-[#f5f6f4] rounded-2xl flex items-center justify-center p-8 sm:p-12 overflow-hidden group">
                 
                 {/* BEST SELLER Badge */}
                 <div className="absolute top-5 left-5 z-10">
-                  <span className="inline-block px-3.5 py-1 rounded-full bg-white/90 backdrop-blur-sm border border-zinc-300 text-zinc-800 text-[11px] font-semibold tracking-wider uppercase shadow-xs">
+                  <span className="inline-block px-3.5 py-1 rounded-full bg-white/90 border border-zinc-300 text-zinc-800 text-[10px] font-semibold tracking-widest uppercase shadow-xs">
                     BEST SELLER
                   </span>
                 </div>
@@ -282,10 +282,10 @@ export default function ProductDetailClient({ product, category }) {
                   <button
                     type="button"
                     onClick={() => setSelectedSize("300mm")}
-                    className={`py-3 px-6 rounded-xl text-center text-sm transition-all cursor-pointer ${
+                    className={`py-2.5 px-6 rounded-full text-center text-sm transition-all cursor-pointer ${
                       selectedSize === "300mm"
                         ? "bg-[#e3edd3] border border-[#a8c783] text-[#2c4714] font-medium shadow-xs"
-                        : "bg-[#f1f3f1] border border-transparent text-zinc-700 hover:bg-[#e6e8e6]"
+                        : "bg-[#f0f2ee] border border-transparent text-zinc-700 hover:bg-[#e6e8e4]"
                     }`}
                   >
                     300mm
@@ -293,13 +293,13 @@ export default function ProductDetailClient({ product, category }) {
                   <button
                     type="button"
                     onClick={() => setSelectedSize("400mm")}
-                    className={`py-3 px-6 rounded-xl text-center text-sm transition-all cursor-pointer ${
+                    className={`py-2.5 px-6 rounded-full text-center text-sm transition-all cursor-pointer ${
                       selectedSize === "400mm"
                         ? "bg-[#e3edd3] border border-[#a8c783] text-[#2c4714] font-medium shadow-xs"
-                        : "bg-[#f1f3f1] border border-transparent text-zinc-700 hover:bg-[#e6e8e6]"
+                        : "bg-[#f0f2ee] border border-transparent text-zinc-700 hover:bg-[#e6e8e4]"
                     }`}
                   >
-                    100ml / 400mm
+                    400mm
                   </button>
                 </div>
               </div>
@@ -309,7 +309,7 @@ export default function ProductDetailClient({ product, category }) {
                 <div className="flex items-center gap-3">
                   
                   {/* Quantity Pill */}
-                  <div className="inline-flex items-center justify-between border border-zinc-300 rounded-full px-4 py-2.5 bg-white min-w-[110px] shrink-0">
+                  <div className="inline-flex items-center justify-between border border-zinc-300 rounded-full px-4 h-12 bg-white min-w-[110px] shrink-0">
                     <button
                       type="button"
                       onClick={() => setQuantity((q) => Math.max(1, q - 1))}
@@ -336,10 +336,10 @@ export default function ProductDetailClient({ product, category }) {
                     type="button"
                     onClick={handleAddToCart}
                     disabled={added}
-                    className={`flex-1 py-3.5 px-6 rounded-full font-medium text-xs uppercase tracking-widest text-center transition-all shadow-sm cursor-pointer active:scale-[0.99] flex items-center justify-center gap-2 ${
+                    className={`flex-1 h-12 px-8 rounded-full font-medium text-xs uppercase tracking-widest text-center transition-all shadow-sm cursor-pointer active:scale-[0.99] flex items-center justify-center gap-2 ${
                       added
                         ? "bg-emerald-700 text-white"
-                        : "bg-[#372948] hover:bg-[#281d36] text-white"
+                        : "bg-[#392742] hover:bg-[#2b1c33] text-white"
                     }`}
                   >
                     {added ? (
@@ -356,7 +356,7 @@ export default function ProductDetailClient({ product, category }) {
                   <button
                     type="button"
                     onClick={() => setWishlist(!wishlist)}
-                    className="w-11 h-11 rounded-full border border-zinc-300 flex items-center justify-center hover:bg-zinc-50 transition-colors text-zinc-700 cursor-pointer shrink-0"
+                    className="w-12 h-12 rounded-full border border-zinc-300 flex items-center justify-center hover:bg-zinc-50 hover:border-zinc-400 transition-colors text-zinc-700 cursor-pointer shrink-0"
                     aria-label="Add to wishlist"
                   >
                     <Heart
