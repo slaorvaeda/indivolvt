@@ -5,13 +5,25 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Star, ShoppingCart, Check, ArrowLeft, ShieldCheck, Truck, RotateCcw } from "lucide-react";
 import { motion } from "framer-motion";
 import { useCartStore } from "@/store/useCartStore";
 
 export default function ProductDetailClient({ product, category }) {
+  const router = useRouter();
   const [added, setAdded] = useState(false);
   const [selectedImage, setSelectedImage] = useState(0);
+
+  const handleBack = () => {
+    if (typeof window !== "undefined") {
+      if (window.history.length > 1) {
+        router.back();
+      } else {
+        router.push("/");
+      }
+    }
+  };
 
   // Build gallery strictly from uploaded database images
   const galleryImages = [];
@@ -45,19 +57,16 @@ export default function ProductDetailClient({ product, category }) {
       <main className="flex-grow pt-32 pb-24">
         <div className="max-w-7xl mx-auto px-6 md:px-12 space-y-12">
 
-          {/* Back Navigation Link */}
+          {/* Simple Back Navigation Button */}
           <div>
-            <Link
-              href={
-                category && category.slug
-                  ? `/category/${category.slug.toLowerCase().trim().replace(/[\s_]+/g, "-")}/`
-                  : "/#categories"
-              }
-              className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest text-sky-600 hover:text-orange-500 transition-colors"
+            <button
+              type="button"
+              onClick={handleBack}
+              className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest text-sky-600 hover:text-orange-500 transition-colors cursor-pointer group"
             >
-              <ArrowLeft className="w-4 h-4" />
-              <span>Back to {category ? category.label : "Collections"}</span>
-            </Link>
+              <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
+              <span>Back</span>
+            </button>
           </div>
 
           {/* Product Details Grid */}
