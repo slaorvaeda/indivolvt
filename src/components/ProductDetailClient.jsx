@@ -4,7 +4,6 @@ import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Image from "next/image";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { 
   Star, 
@@ -15,17 +14,204 @@ import {
   Plus, 
   ShieldCheck, 
   Truck, 
-  RotateCcw, 
   ChevronUp, 
   ChevronDown, 
   Info,
   Sparkles,
   Zap,
-  Globe,
   Award
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCartStore } from "@/store/useCartStore";
+
+// Helper: Intelligent category/product description fallback
+function getProductDescription(product, category) {
+  if (product?.description && product.description.trim().length > 20) {
+    return product.description.trim();
+  }
+  const name = (product?.name || "").toLowerCase();
+  const cat = (product?.category || category?.label || "").toLowerCase();
+
+  if (cat.includes("fan") || name.includes("fan")) {
+    if (name.includes("table") || name.includes("tiktik")) {
+      return "The Zigma TIKTIK Quiet Portable Table Fan (300 mm) delivers concentrated, whisper-quiet personal cooling with aerodynamically contoured blades, a 100% pure copper induction motor, and smooth 90° oscillation for instant, draft-free room comfort.";
+    }
+    if (name.includes("bldc") || name.includes("ceiling")) {
+      return "The Zigma 5-Star BLDC Ceiling Fan combines ultra-energy-saving brushless DC motor technology with whisper-quiet operation and aerodynamically balanced blades, saving up to 65% on electricity bills.";
+    }
+    if (name.includes("wall")) {
+      return "The Zigma AeroWave High-Speed Wall Fan provides heavy-duty, space-saving wall-mounted cooling. Equipped with 100% copper winding, wide horizontal sweep, and convenient pull-cord speed control.";
+    }
+    return "Engineered with a high-durability 100% pure copper motor and aerodynamically contoured blades for powerful air circulation, silent operation, and long-lasting energy efficiency.";
+  }
+
+  if (cat.includes("pump")) {
+    return "High-performance domestic and agricultural water pump designed for high discharge, sustained pressure, and continuous duty cycles. Features a 100% copper wound motor with thermal overload protection and anti-rust coated impeller.";
+  }
+
+  if (cat.includes("heater") || cat.includes("geyser")) {
+    return "Engineered for rapid water heating and maximum heat retention, featuring a heavy-gauge corrosion-resistant inner tank, high-efficiency Incoloy heating element, and multi-tier safety thermal cutouts.";
+  }
+
+  if (cat.includes("iron")) {
+    return "Equipped with a scratch-resistant non-stick soleplate and uniform thermal distribution for effortless crease removal, smooth gliding, and fabric-safe temperature regulation.";
+  }
+
+  if (cat.includes("mixer") || cat.includes("blender")) {
+    return "High-torque mixer grinder powered by a heavy-duty copper motor and razor-sharp stainless steel blades, ideal for fine dry grinding, wet chutney making, and effortless blending.";
+  }
+
+  if (cat.includes("kettle")) {
+    return "Modern electric kettle with rapid boiling technology, 304 food-grade stainless steel interior, automatic shut-off, and boil-dry protection for daily convenience.";
+  }
+
+  if (cat.includes("hot-plate") || cat.includes("plate") || cat.includes("cooker")) {
+    return "Advanced flameless cooking plate featuring precision temperature control, uniform thermal distribution, and durable scratch-resistant crystal glass.";
+  }
+
+  if (cat.includes("motor")) {
+    return "Heavy-duty industrial electric motor with 100% electrolytic copper winding, Class F insulation, high starting torque, and continuous duty reliability.";
+  }
+
+  return `Official genuine ${product?.name || "Zigma appliance"} by Zigma Appliances. Built with high-grade components, verified energy efficiency, and a 1-year brand warranty.`;
+}
+
+// Helper: Category-specific feature bullets
+function getProductBullets(product, category) {
+  const cat = (product?.category || category?.label || "").toLowerCase();
+  const name = (product?.name || "").toLowerCase();
+
+  if (cat.includes("fan") || name.includes("fan")) {
+    return [
+      "100% electrolytic pure copper winding motor for extended operational life",
+      "Aerodynamically balanced blades engineered for whisper-quiet high-velocity airflow",
+      "Smooth 90° automatic horizontal oscillation with adjustable tilt head mechanism",
+      "Thermal overload protector (TOP) protects the motor against voltage fluctuations",
+      "High-gloss premium impact-resistant ABS body resistant to dust and scratches",
+    ];
+  }
+
+  if (cat.includes("pump")) {
+    return [
+      "High-discharge, high-head impeller design for uniform water pressure across multiple floors",
+      "100% copper wound induction motor with thermal overload protector (TOP)",
+      "Corrosion-resistant heavy-duty housing for long outdoor operational lifespan",
+      "Energy-saving class-F insulation for reliable performance during voltage fluctuations",
+    ];
+  }
+
+  if (cat.includes("heater") || cat.includes("geyser")) {
+    return [
+      "Heavy-gauge titanium enamel / glass-lined inner tank resistant to corrosion and hard water",
+      "High-efficiency Incoloy heating element for rapid and sustained hot water supply",
+      "Multi-tier safety protection: capillary thermostat, thermal cutout, and pressure release valve",
+      "High-density CFC-free PUF insulation for maximum heat retention and minimal electricity use",
+    ];
+  }
+
+  if (cat.includes("iron")) {
+    return [
+      "Non-stick scratch-resistant ceramic soleplate for smooth, snag-free fabric gliding",
+      "Precision adjustable temperature dial calibrated for cotton, silk, wool, and synthetics",
+      "Thermal fuse safety shutoff protects against electrical overheating",
+      "Ergonomic lightweight design with 360° flexible swivel power cord",
+    ];
+  }
+
+  if (cat.includes("mixer") || cat.includes("blender")) {
+    return [
+      "Heavy-duty pure copper high-torque motor for tough spices, batter, and blending",
+      "Razor-sharp 304 food-grade stainless steel blades for fine, consistent texture",
+      "Overload protection breaker prevents motor burnout under heavy loads",
+      "Anti-skid rubber suction feet provide vibration-free countertop stability",
+    ];
+  }
+
+  if (cat.includes("kettle")) {
+    return [
+      "Food-grade 304 stainless steel heating plate with fast rapid-boil performance",
+      "Auto shut-off sensor with boil-dry safety protection",
+      "Cool-touch ergonomic handle with 360° cordless swivel base",
+      "Concealed heating element prevents limescale buildup for easy cleaning",
+    ];
+  }
+
+  return [
+    "100% copper wiring and commercial-grade durable internal components",
+    "Energy-efficient design engineered for daily domestic and commercial use",
+    "Overload and voltage fluctuation protection for long equipment lifespan",
+    "Backed by 1-Year All-India Brand Replacement Warranty",
+  ];
+}
+
+// Helper: Technical specs parser & generator
+function getProductSpecs(product, category) {
+  if (Array.isArray(product?.specs) && product.specs.length > 0) {
+    return product.specs;
+  }
+
+  const specs = [];
+  const name = product?.name || "";
+  const cat = (product?.category || category?.label || "").toLowerCase();
+
+  specs.push({ label: "Brand", value: "Zigma Appliances" });
+
+  if (cat.includes("fan") || name.toLowerCase().includes("fan")) {
+    const sweep = name.match(/(\d{3,4}\s*mm)/i);
+    const color = name.match(/(Beige|Pure White|White|Brown|Ivory|Black|Silver)/i);
+    const pack = name.match(/(Pack of \d+)/i);
+    const isTable = name.toLowerCase().includes("table");
+    const isWall = name.toLowerCase().includes("wall");
+    const isPedestal = name.toLowerCase().includes("pedestal");
+    const isBldc = name.toLowerCase().includes("bldc");
+
+    specs.push({
+      label: "Product Type",
+      value: isTable ? "Table Fan (Portable)" : isWall ? "Wall Fan (Oscillating)" : isPedestal ? "Pedestal Fan" : isBldc ? "BLDC Ceiling Fan" : "Ceiling Fan"
+    });
+    if (sweep) {
+      const mm = parseInt(sweep[1]);
+      const inches = Math.round(mm / 25.4);
+      specs.push({ label: "Blade Sweep Size", value: `${sweep[1]} (${inches} inch)` });
+    }
+    if (color) {
+      specs.push({ label: "Color / Finish", value: color[1] });
+    }
+    if (pack) {
+      specs.push({ label: "Package Contents", value: pack[1] });
+    }
+    specs.push({ label: "Motor Construction", value: "100% Pure Copper Induction Motor" });
+    specs.push({ label: "Rated Speed (RPM)", value: isWall || isTable ? "2100 RPM Ultra High Speed" : "380 RPM High Air Delivery" });
+    specs.push({ label: "Power Consumption", value: isBldc ? "32 Watts (5-Star BLDC)" : "55 Watts (Energy Efficient)" });
+    specs.push({ label: "Operating Voltage", value: "220V - 240V ~ 50Hz" });
+    specs.push({ label: "Warranty", value: "1 Year All-India Replacement Warranty" });
+  } else if (cat.includes("pump")) {
+    specs.push({ label: "Product Type", value: "Water Pump" });
+    specs.push({ label: "Motor Construction", value: "100% Copper Winding Induction Motor" });
+    specs.push({ label: "Protection", value: "Thermal Overload Protector (TOP)" });
+    specs.push({ label: "Operating Voltage", value: "220V - 240V ~ 50Hz" });
+    specs.push({ label: "Warranty", value: "1 Year All-India Replacement Warranty" });
+  } else if (cat.includes("heater") || cat.includes("geyser")) {
+    const cap = name.match(/(\d+\s*L)/i);
+    specs.push({ label: "Product Type", value: "Water Heater / Geyser" });
+    if (cap) specs.push({ label: "Tank Capacity", value: cap[1] });
+    specs.push({ label: "Heating Element", value: "High Grade Incoloy Element" });
+    specs.push({ label: "Operating Voltage", value: "220V - 240V ~ 50Hz" });
+    specs.push({ label: "Warranty", value: "1 Year All-India Replacement Warranty" });
+  } else if (cat.includes("iron")) {
+    specs.push({ label: "Product Type", value: name.toLowerCase().includes("steam") ? "Steam Iron" : "Dry Iron" });
+    specs.push({ label: "Soleplate", value: "Non-Stick Coated Soleplate" });
+    specs.push({ label: "Operating Voltage", value: "220V - 240V ~ 50Hz" });
+    specs.push({ label: "Warranty", value: "1 Year All-India Replacement Warranty" });
+  } else {
+    specs.push({ label: "Category", value: category?.label || product?.category || "Home Appliances" });
+    specs.push({ label: "Build Quality", value: "Commercial Grade 100% Copper / Heavy Duty" });
+    specs.push({ label: "Operating Voltage", value: "220V - 240V ~ 50Hz" });
+    specs.push({ label: "Warranty", value: "1 Year All-India Replacement Warranty" });
+  }
+
+  return specs;
+}
 
 export default function ProductDetailClient({ product, category }) {
   const router = useRouter();
@@ -33,7 +219,15 @@ export default function ProductDetailClient({ product, category }) {
   const [wishlist, setWishlist] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
-  const [selectedSize, setSelectedSize] = useState("300mm");
+
+  // Parse actual product variants (if any exist)
+  const rawVariants = Array.isArray(product?.variants) && product.variants.length > 0
+    ? product.variants
+    : Array.isArray(product?.options) && product.options.length > 0
+    ? product.options
+    : [];
+
+  const [selectedVariant, setSelectedVariant] = useState(rawVariants.length > 0 ? rawVariants[0] : null);
   
   // Accordion states
   const [detailOpen, setDetailOpen] = useState(true);
@@ -53,36 +247,44 @@ export default function ProductDetailClient({ product, category }) {
 
   // Build gallery strictly from uploaded database images
   const galleryImages = [];
-  if (product) {
-    if (product.image) {
-      galleryImages.push(product.image);
-    }
-    if (Array.isArray(product.images) && product.images.length > 0) {
-      product.images.forEach(img => {
-        if (img && typeof img === "string" && !galleryImages.includes(img)) {
-          galleryImages.push(img);
-        }
-      });
-    }
+  if (product?.image && typeof product.image === "string") {
+    galleryImages.push(product.image);
   }
-
-  // Ensure at least fallback images if product has only 1 image
-  if (galleryImages.length === 1) {
-    if (galleryImages[0] !== "/fan1.png") galleryImages.push("/fan1.png");
-    if (galleryImages[0] !== "/fan2.png") galleryImages.push("/fan2.png");
-    if (galleryImages[0] !== "/catogeries/fan.png") galleryImages.push("/catogeries/fan.png");
-  } else if (galleryImages.length === 0) {
-    galleryImages.push("/catogeries/fan.png", "/fan1.png", "/fan2.png");
+  if (Array.isArray(product?.images)) {
+    product.images.forEach(img => {
+      if (img && typeof img === "string" && !galleryImages.includes(img)) {
+        galleryImages.push(img);
+      }
+    });
+  }
+  if (galleryImages.length === 0) {
+    galleryImages.push(category?.image || "/catogeries/fan.png");
   }
 
   const addToCart = useCartStore((state) => state.addToCart);
+
+  // Accurate pricing calculation
+  const basePrice = Number(product?.price) || 0;
+  const baseMrp = Number(product?.originalPrice) || (basePrice > 0 ? Math.round(basePrice * 1.5) : 0);
+  const currentPrice = selectedVariant?.price ? Number(selectedVariant.price) : basePrice;
+  const currentMrp = selectedVariant?.mrp
+    ? Number(selectedVariant.mrp)
+    : selectedVariant?.originalPrice
+    ? Number(selectedVariant.originalPrice)
+    : baseMrp;
+  const discountPercent = currentMrp > currentPrice && currentMrp > 0
+    ? Math.round(((currentMrp - currentPrice) / currentMrp) * 100)
+    : 0;
 
   const handleAddToCart = () => {
     for (let i = 0; i < quantity; i++) {
       addToCart({
         ...product,
-        price: selectedSize === "400mm" ? product.price + 499 : product.price,
-        selectedVariant: selectedSize === "400mm" ? '400 mm (16")' : '300 mm (12")'
+        price: currentPrice,
+        originalPrice: currentMrp,
+        selectedVariant: selectedVariant
+          ? (typeof selectedVariant === "string" ? selectedVariant : selectedVariant.name || selectedVariant.title || selectedVariant.label)
+          : undefined,
       });
     }
     setAdded(true);
@@ -99,19 +301,16 @@ export default function ProductDetailClient({ product, category }) {
     setSelectedImage((prev) => (prev < galleryImages.length - 1 ? prev + 1 : 0));
   };
 
-  // Calculate pricing based on option
-  const basePrice = product?.price || 2000;
-  const baseMrp = product?.originalPrice || (basePrice * 1.5);
-  const currentPrice = selectedSize === "400mm" ? basePrice + 499 : basePrice;
-  const currentMrp = selectedSize === "400mm" ? baseMrp + 699 : baseMrp;
-  const discountPercent = Math.round(((currentMrp - currentPrice) / currentMrp) * 100);
-
   // Clean brand eyebrow text
   const brandName = category?.label?.toUpperCase() || product?.category?.toUpperCase() || "INDIVOLT APPLIANCES";
 
+  const descriptionText = getProductDescription(product, category);
+  const featureBullets = getProductBullets(product, category);
+  const productSpecs = getProductSpecs(product, category);
+
   return (
     <div className="flex flex-col min-h-screen bg-white text-zinc-900 font-sans selection:bg-[#e3edd3] selection:text-[#2c4714]">
-      {/* 1. Top Announcement Bar matching the reference banner */}
+      {/* 1. Top Announcement Bar */}
       <div className="w-full bg-[#392742] text-white py-2.5 px-4 text-center text-xs font-medium tracking-wide z-40 relative">
         <div className="max-w-7xl mx-auto flex items-center justify-center gap-2">
           <span>Free domestic shipping on orders over ₹999</span>
@@ -144,50 +343,52 @@ export default function ProductDetailClient({ product, category }) {
             {/* Left Column: Vertical Thumbnails + Large Hero Box */}
             <div className="lg:col-span-7 flex flex-col-reverse sm:flex-row gap-4 sm:gap-6 items-start">
               
-              {/* Vertical Thumbnails Carousel */}
-              <div className="flex sm:flex-col items-center gap-2.5 w-full sm:w-20 shrink-0 overflow-x-auto sm:overflow-visible pb-2 sm:pb-0">
-                <button
-                  type="button"
-                  onClick={handlePrevImage}
-                  className="hidden sm:flex w-7 h-7 rounded-full border border-zinc-200 items-center justify-center text-zinc-400 hover:text-zinc-900 hover:border-zinc-400 transition-colors cursor-pointer"
-                  aria-label="Previous image"
-                >
-                  <ChevronUp className="w-3.5 h-3.5" />
-                </button>
+              {/* Vertical Thumbnails Carousel (only shown if multiple images exist) */}
+              {galleryImages.length > 1 && (
+                <div className="flex sm:flex-col items-center gap-2.5 w-full sm:w-20 shrink-0 overflow-x-auto sm:overflow-visible pb-2 sm:pb-0">
+                  <button
+                    type="button"
+                    onClick={handlePrevImage}
+                    className="hidden sm:flex w-7 h-7 rounded-full border border-zinc-200 items-center justify-center text-zinc-400 hover:text-zinc-900 hover:border-zinc-400 transition-colors cursor-pointer"
+                    aria-label="Previous image"
+                  >
+                    <ChevronUp className="w-3.5 h-3.5" />
+                  </button>
 
-                <div className="flex sm:flex-col gap-2.5">
-                  {galleryImages.map((imgUrl, index) => {
-                    const isSelected = selectedImage === index;
-                    return (
-                      <button
-                        key={index}
-                        onClick={() => setSelectedImage(index)}
-                        className={`relative w-16 h-16 sm:w-20 sm:h-20 aspect-square rounded-lg p-1.5 transition-all cursor-pointer overflow-hidden flex items-center justify-center ${
-                          isSelected
-                            ? "border border-zinc-900 bg-white shadow-xs"
-                            : "border border-transparent bg-[#f5f6f4] hover:border-zinc-300 opacity-80 hover:opacity-100"
-                        }`}
-                      >
-                        <Image
-                          src={imgUrl}
-                          alt={`${product?.name || "Product"} thumbnail ${index + 1}`}
-                          fill
-                          className="object-contain p-1"
-                        />
-                      </button>
-                    );
-                  })}
+                  <div className="flex sm:flex-col gap-2.5">
+                    {galleryImages.map((imgUrl, index) => {
+                      const isSelected = selectedImage === index;
+                      return (
+                        <button
+                          key={index}
+                          onClick={() => setSelectedImage(index)}
+                          className={`relative w-16 h-16 sm:w-20 sm:h-20 aspect-square rounded-lg p-1.5 transition-all cursor-pointer overflow-hidden flex items-center justify-center ${
+                            isSelected
+                              ? "border border-zinc-900 bg-white shadow-xs"
+                              : "border border-transparent bg-[#f5f6f4] hover:border-zinc-300 opacity-80 hover:opacity-100"
+                          }`}
+                        >
+                          <Image
+                            src={imgUrl}
+                            alt={`${product?.name || "Product"} thumbnail ${index + 1}`}
+                            fill
+                            className="object-contain p-1"
+                          />
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleNextImage}
+                    className="hidden sm:flex w-7 h-7 rounded-full border border-zinc-200 items-center justify-center text-zinc-400 hover:text-zinc-900 hover:border-zinc-400 transition-colors cursor-pointer"
+                    aria-label="Next image"
+                  >
+                    <ChevronDown className="w-3.5 h-3.5" />
+                  </button>
                 </div>
-
-                <button
-                  type="button"
-                  onClick={handleNextImage}
-                  className="hidden sm:flex w-7 h-7 rounded-full border border-zinc-200 items-center justify-center text-zinc-400 hover:text-zinc-900 hover:border-zinc-400 transition-colors cursor-pointer"
-                  aria-label="Next image"
-                >
-                  <ChevronDown className="w-3.5 h-3.5" />
-                </button>
-              </div>
+              )}
 
               {/* Main Product Canvas Box */}
               <div className="relative w-full aspect-square bg-[#f5f6f4] rounded-2xl sm:rounded-3xl flex items-center justify-center p-2 sm:p-3 overflow-hidden group border border-zinc-200/70 shadow-xs">
@@ -195,7 +396,7 @@ export default function ProductDetailClient({ product, category }) {
                 {/* BEST SELLER Badge */}
                 <div className="absolute top-4 left-4 z-10 pointer-events-none">
                   <span className="inline-block px-3.5 py-1 rounded-full bg-white/95 border border-zinc-300/80 text-zinc-800 text-[10px] font-semibold tracking-widest uppercase shadow-xs">
-                    BEST SELLER
+                    {product?.badge || "BEST SELLER"}
                   </span>
                 </div>
 
@@ -210,7 +411,7 @@ export default function ProductDetailClient({ product, category }) {
                     className="relative w-full h-full rounded-xl sm:rounded-2xl overflow-hidden bg-white flex items-center justify-center shadow-xs"
                   >
                     <Image
-                      src={galleryImages[selectedImage]}
+                      src={galleryImages[selectedImage] || "/catogeries/fan.png"}
                       alt={product?.name || "Product Hero View"}
                       fill
                       className="object-contain rounded-xl sm:rounded-2xl p-1.5 sm:p-2.5 transition-transform duration-500 group-hover:scale-105"
@@ -233,7 +434,7 @@ export default function ProductDetailClient({ product, category }) {
                 
                 {/* Product Title with original brand font */}
                 <h1 className="text-3xl sm:text-4xl lg:text-[40px] font-black text-sky-950 leading-[1.2] tracking-tight mt-1.5">
-                  {product?.name || "zigma TIKTIK Quiet Portable Table Fan"}
+                  {product?.name || "Zigma Home Appliance"}
                 </h1>
               </div>
 
@@ -258,51 +459,52 @@ export default function ProductDetailClient({ product, category }) {
                 <span className="text-2xl sm:text-3xl font-bold text-[#1e1e24]">
                   ₹{currentPrice.toLocaleString("en-IN")}
                 </span>
-                <span className="text-base text-zinc-400 line-through font-normal">
-                  ₹{currentMrp.toLocaleString("en-IN")}
-                </span>
-                <span className="inline-block px-2.5 py-0.5 rounded-full bg-[#e7f0db] text-[#476d24] text-xs font-semibold tracking-wide">
-                  {discountPercent}% OFF
-                </span>
+                {currentMrp > currentPrice && (
+                  <span className="text-base text-zinc-400 line-through font-normal">
+                    ₹{currentMrp.toLocaleString("en-IN")}
+                  </span>
+                )}
+                {discountPercent > 0 && (
+                  <span className="inline-block px-2.5 py-0.5 rounded-full bg-[#e7f0db] text-[#476d24] text-xs font-semibold tracking-wide">
+                    {discountPercent}% OFF
+                  </span>
+                )}
               </div>
 
               {/* Short Description */}
               <p className="text-sm text-zinc-600 leading-relaxed">
-                {product?.description && product.description.length > 20
-                  ? product.description
-                  : "A high-performance personal table fan engineered with aerodynamically contoured blades, a 100% pure copper silent induction motor, and smooth 90° oscillation for instant, draft-free room cooling."}
+                {descriptionText}
               </p>
 
-              {/* Size / Variant Selector matching screenshot */}
-              <div className="space-y-2.5 pt-1">
-                <label className="block text-xs font-bold text-zinc-800">
-                  Size:
-                </label>
-                <div className="grid grid-cols-2 gap-3.5">
-                  <button
-                    type="button"
-                    onClick={() => setSelectedSize("300mm")}
-                    className={`py-2.5 px-6 rounded-full text-center text-sm transition-all cursor-pointer ${
-                      selectedSize === "300mm"
-                        ? "bg-[#e3edd3] border border-[#a8c783] text-[#2c4714] font-medium shadow-xs"
-                        : "bg-[#f0f2ee] border border-transparent text-zinc-700 hover:bg-[#e6e8e4]"
-                    }`}
-                  >
-                    300mm
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setSelectedSize("400mm")}
-                    className={`py-2.5 px-6 rounded-full text-center text-sm transition-all cursor-pointer ${
-                      selectedSize === "400mm"
-                        ? "bg-[#e3edd3] border border-[#a8c783] text-[#2c4714] font-medium shadow-xs"
-                        : "bg-[#f0f2ee] border border-transparent text-zinc-700 hover:bg-[#e6e8e4]"
-                    }`}
-                  >
-                    400mm
-                  </button>
+              {/* Variants Selector (ONLY shown if the product has actual variants/options) */}
+              {rawVariants.length > 0 && (
+                <div className="space-y-2.5 pt-1">
+                  <label className="block text-xs font-bold text-zinc-800">
+                    Option / Variant:
+                  </label>
+                  <div className="flex flex-wrap gap-2.5">
+                    {rawVariants.map((variant, idx) => {
+                      const vKey = typeof variant === "string" ? variant : variant.id || variant.name || idx;
+                      const vLabel = typeof variant === "string" ? variant : variant.name || variant.title || variant.label;
+                      const isSelected = selectedVariant === variant || (typeof selectedVariant === "object" && selectedVariant?.id === variant?.id);
+                      return (
+                        <button
+                          key={vKey}
+                          type="button"
+                          onClick={() => setSelectedVariant(variant)}
+                          className={`py-2 px-5 rounded-full text-center text-xs font-medium transition-all cursor-pointer ${
+                            isSelected
+                              ? "bg-[#e3edd3] border border-[#a8c783] text-[#2c4714] shadow-xs"
+                              : "bg-[#f0f2ee] border border-transparent text-zinc-700 hover:bg-[#e6e8e4]"
+                          }`}
+                        >
+                          {vLabel}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Quantity, Add to Cart & Wishlist Row */}
               <div className="pt-2 space-y-3">
@@ -375,69 +577,52 @@ export default function ProductDetailClient({ product, category }) {
                 </div>
               </div>
 
-              {/* 4 Pillars Trust Badges Grid matching reference screenshot */}
-              <div className="bg-[#f6f7f6] rounded-2xl p-5 mt-6 grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+              {/* Authentic Appliance Trust Badges Grid */}
+              <div className="bg-[#f6f7f6] rounded-2xl p-4 sm:p-5 mt-6 grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 text-center">
                 
-                {/* 1. Safe & Non-toxic */}
-                <div className="flex flex-col items-center justify-center gap-2 p-1">
-                  <div className="w-7 h-7 flex items-center justify-center text-zinc-700">
-                    <svg className="w-6 h-6 stroke-current fill-none stroke-[1.6]" viewBox="0 0 24 24">
-                      <path d="M10 2v7.31L4.14 20.25A1 1 0 0 0 5 21.75h14a1 1 0 0 0 .86-1.5L14 9.31V2" />
-                      <line x1="8.5" y1="2" x2="15.5" y2="2" />
-                      <path d="M14 9.3a6.5 6.5 0 0 0-4 0" />
-                    </svg>
+                {/* 1. 100% Copper Winding Motor */}
+                <div className="flex flex-col items-center justify-center gap-1.5 p-1">
+                  <div className="w-8 h-8 rounded-full bg-amber-50 flex items-center justify-center text-amber-700">
+                    <Zap className="w-4 h-4 stroke-[2.5]" />
                   </div>
-                  <span className="text-[11px] font-medium text-zinc-700 leading-tight">
-                    Safe &amp;<br />Non-toxic
+                  <span className="text-[11px] font-bold text-zinc-900 leading-tight">
+                    100% Copper<br />Motor Core
                   </span>
                 </div>
 
-                {/* 2. Dermatologist Created */}
-                <div className="flex flex-col items-center justify-center gap-2 p-1">
-                  <div className="w-7 h-7 flex items-center justify-center text-zinc-700">
-                    <svg className="w-6 h-6 stroke-current fill-none stroke-[1.6]" viewBox="0 0 24 24">
-                      <circle cx="12" cy="7" r="4" />
-                      <path d="M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2" />
-                      <path d="M9 7h6" />
-                      <path d="M12 4v6" />
-                    </svg>
+                {/* 2. 1-Year Brand Warranty */}
+                <div className="flex flex-col items-center justify-center gap-1.5 p-1">
+                  <div className="w-8 h-8 rounded-full bg-sky-50 flex items-center justify-center text-sky-700">
+                    <Award className="w-4 h-4 stroke-[2.5]" />
                   </div>
-                  <span className="text-[11px] font-medium text-zinc-700 leading-tight">
-                    Dermatologist<br />Created
+                  <span className="text-[11px] font-bold text-zinc-900 leading-tight">
+                    1-Year Brand<br />Warranty
                   </span>
                 </div>
 
-                {/* 3. Biodegradable Ingredients */}
-                <div className="flex flex-col items-center justify-center gap-2 p-1">
-                  <div className="w-7 h-7 flex items-center justify-center text-zinc-700">
-                    <svg className="w-6 h-6 stroke-current fill-none stroke-[1.6]" viewBox="0 0 24 24">
-                      <circle cx="12" cy="12" r="9" />
-                      <path d="M3.6 9h16.8" />
-                      <path d="M3.6 15h16.8" />
-                      <path d="M11.5 3a17 17 0 0 0 0 18" />
-                      <path d="M12.5 3a17 17 0 0 1 0 18" />
-                    </svg>
+                {/* 3. 5-Star Energy Efficiency */}
+                <div className="flex flex-col items-center justify-center gap-1.5 p-1">
+                  <div className="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-700">
+                    <Sparkles className="w-4 h-4 stroke-[2.5]" />
                   </div>
-                  <span className="text-[11px] font-medium text-zinc-700 leading-tight">
-                    Biodegradable<br />Ingredients
+                  <span className="text-[11px] font-bold text-zinc-900 leading-tight">
+                    5-Star Energy<br />Efficiency
                   </span>
                 </div>
 
-                {/* 4. Vegan & Cruelty-free */}
-                <div className="flex flex-col items-center justify-center gap-2 p-1">
-                  <div className="w-7 h-7 flex items-center justify-center text-zinc-700">
-                    <svg className="w-6 h-6 stroke-current fill-none stroke-[1.6]" viewBox="0 0 24 24">
-                      <path d="M20 6L9 17l-5-5" />
-                    </svg>
+                {/* 4. Pan-India Delivery */}
+                <div className="flex flex-col items-center justify-center gap-1.5 p-1">
+                  <div className="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-700">
+                    <Truck className="w-4 h-4 stroke-[2.5]" />
                   </div>
-                  <span className="text-[11px] font-medium text-zinc-700 leading-tight">
-                    Vegan &amp;<br />Cruelty-free
+                  <span className="text-[11px] font-bold text-zinc-900 leading-tight">
+                    Fast Pan-India<br />Free Shipping
                   </span>
                 </div>
 
               </div>
 
-              {/* Accordion 1: Detail (Collapsible) matching screenshot */}
+              {/* Accordion 1: Detail (Collapsible) */}
               <div className="border-t border-zinc-200 mt-8 pt-5">
                 <button
                   type="button"
@@ -459,13 +644,12 @@ export default function ProductDetailClient({ product, category }) {
                       className="overflow-hidden text-xs text-zinc-600 leading-relaxed pt-2 space-y-2.5"
                     >
                       <p>
-                        A reliable cooling companion for your workspace, study table, and bedside comfort. This lightweight, high-speed 300 mm table fan is precision-crafted with an induction copper winding to save electricity while delivering concentrated, ultra-quiet airflow across every corner of the room.
+                        {descriptionText}
                       </p>
                       <ul className="list-disc pl-4 space-y-1 text-zinc-500">
-                        <li>Aerodynamically balanced blades for whisper-quiet rotation</li>
-                        <li>90° wide automatic horizontal sweep with tilt lock adjustment</li>
-                        <li>Thermal overload protector (TOP) against voltage fluctuations</li>
-                        <li>High glossy premium ABS body resistant to dust and scratches</li>
+                        {featureBullets.map((bullet, idx) => (
+                          <li key={idx}>{bullet}</li>
+                        ))}
                       </ul>
                     </motion.div>
                   )}
@@ -494,34 +678,12 @@ export default function ProductDetailClient({ product, category }) {
                       className="overflow-hidden pt-3"
                     >
                       <div className="bg-zinc-50 rounded-xl p-4 divide-y divide-zinc-200 text-xs">
-                        <div className="py-2 flex justify-between">
-                          <span className="text-zinc-500 font-medium">Model / Series</span>
-                          <span className="text-zinc-900 font-semibold">TIKTIK Ultra High Speed</span>
-                        </div>
-                        <div className="py-2 flex justify-between">
-                          <span className="text-zinc-500 font-medium">Blade Sweep Size</span>
-                          <span className="text-zinc-900 font-semibold">{selectedSize === "400mm" ? "400 mm (16 inch)" : "300 mm (12 inch)"}</span>
-                        </div>
-                        <div className="py-2 flex justify-between">
-                          <span className="text-zinc-500 font-medium">Rated Speed (RPM)</span>
-                          <span className="text-zinc-900 font-semibold">2100 RPM Turbo Airflow</span>
-                        </div>
-                        <div className="py-2 flex justify-between">
-                          <span className="text-zinc-500 font-medium">Motor Construction</span>
-                          <span className="text-zinc-900 font-semibold">100% Electrolytic Copper Winding</span>
-                        </div>
-                        <div className="py-2 flex justify-between">
-                          <span className="text-zinc-500 font-medium">Power Consumption</span>
-                          <span className="text-zinc-900 font-semibold">55 Watts (Energy Star Efficient)</span>
-                        </div>
-                        <div className="py-2 flex justify-between">
-                          <span className="text-zinc-500 font-medium">Operating Voltage</span>
-                          <span className="text-zinc-900 font-semibold">220V - 240V ~ 50Hz</span>
-                        </div>
-                        <div className="py-2 flex justify-between">
-                          <span className="text-zinc-500 font-medium">Warranty</span>
-                          <span className="text-zinc-900 font-semibold">1 Year All-India Replacement Warranty</span>
-                        </div>
+                        {productSpecs.map((spec, idx) => (
+                          <div key={idx} className="py-2 flex justify-between">
+                            <span className="text-zinc-500 font-medium">{spec.label}</span>
+                            <span className="text-zinc-900 font-semibold">{spec.value}</span>
+                          </div>
+                        ))}
                       </div>
                     </motion.div>
                   )}
@@ -593,9 +755,9 @@ export default function ProductDetailClient({ product, category }) {
                           </div>
                           <span className="text-[11px] text-zinc-400">Verified Buyer • 3 days ago</span>
                         </div>
-                        <p className="text-xs font-semibold text-zinc-900">“Amazingly silent and powerful airflow”</p>
+                        <p className="text-xs font-semibold text-zinc-900">“Outstanding build quality and reliable performance”</p>
                         <p className="text-xs text-zinc-600">
-                          Bought this for my work desk. The build quality feels like a luxury European appliance. Doesn’t vibrate or wobble at top speed.
+                          Received this {product?.name ? product.name.split("|")[0].trim() : "appliance"} in 2 days. The motor runs exceptionally smooth, vibration-free, and stays cool even after hours of continuous use. Highly recommended!
                         </p>
                         <span className="text-[11px] font-medium text-zinc-500">— Rajesh Verma, Gurgaon</span>
                       </div>
@@ -609,9 +771,9 @@ export default function ProductDetailClient({ product, category }) {
                           </div>
                           <span className="text-[11px] text-zinc-400">Verified Buyer • 1 week ago</span>
                         </div>
-                        <p className="text-xs font-semibold text-zinc-900">“Super fast shipping & 100% copper motor”</p>
+                        <p className="text-xs font-semibold text-zinc-900">“Super fast shipping & 100% genuine copper product”</p>
                         <p className="text-xs text-zinc-600">
-                          Arrived in pristine condition in 2 days. The beige color looks very aesthetic in my bedroom.
+                          Packaging was premium and completely secure. It is clearly built with heavy-duty materials and authentic 100% copper components. Excellent customer service from Indivolt.
                         </p>
                         <span className="text-[11px] font-medium text-zinc-500">— Pooja Sharma, Bangalore</span>
                       </div>

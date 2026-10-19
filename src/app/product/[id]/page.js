@@ -130,6 +130,14 @@ export default async function ProductDetailPage({ params }) {
         image: product.imageUrl || product.image,
         rating: product.metadata?.rating || product.rating || 5.0,
         description: product.description,
+        hasVariants: Boolean(product.hasVariants),
+        variants: Array.isArray(product.variants) && product.variants.length > 0
+          ? product.variants
+          : Array.isArray(product.options) && product.options.length > 0
+          ? product.options
+          : Array.isArray(product.metadata?.variants) && product.metadata.variants.length > 0
+          ? product.metadata.variants
+          : [],
         specs: Array.isArray(product.metadata?.specs)
           ? product.metadata.specs
           : Array.isArray(product.specs)
