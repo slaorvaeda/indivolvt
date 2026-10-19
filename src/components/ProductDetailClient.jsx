@@ -190,30 +190,30 @@ export default function ProductDetailClient({ product, category }) {
               </div>
 
               {/* Main Product Canvas Box */}
-              <div className="relative w-full aspect-square bg-[#f5f6f4] rounded-2xl flex items-center justify-center p-8 sm:p-12 overflow-hidden group">
+              <div className="relative w-full aspect-square bg-[#f5f6f4] rounded-2xl sm:rounded-3xl flex items-center justify-center p-2 sm:p-3 overflow-hidden group border border-zinc-200/70 shadow-xs">
                 
                 {/* BEST SELLER Badge */}
-                <div className="absolute top-5 left-5 z-10">
-                  <span className="inline-block px-3.5 py-1 rounded-full bg-white/90 border border-zinc-300 text-zinc-800 text-[10px] font-semibold tracking-widest uppercase shadow-xs">
+                <div className="absolute top-4 left-4 z-10 pointer-events-none">
+                  <span className="inline-block px-3.5 py-1 rounded-full bg-white/95 border border-zinc-300/80 text-zinc-800 text-[10px] font-semibold tracking-widest uppercase shadow-xs">
                     BEST SELLER
                   </span>
                 </div>
 
-                {/* Animated Image Transition */}
+                {/* Animated Image Transition with minimal padding & rounded corners */}
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={selectedImage}
-                    initial={{ opacity: 0, scale: 0.96 }}
+                    initial={{ opacity: 0, scale: 0.97 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.98 }}
                     transition={{ duration: 0.28, ease: "easeOut" }}
-                    className="relative w-full h-full flex items-center justify-center"
+                    className="relative w-full h-full rounded-xl sm:rounded-2xl overflow-hidden bg-white flex items-center justify-center shadow-xs"
                   >
                     <Image
                       src={galleryImages[selectedImage]}
                       alt={product?.name || "Product Hero View"}
                       fill
-                      className="object-contain p-2 sm:p-6 transition-transform duration-500 group-hover:scale-105 drop-shadow-sm"
+                      className="object-contain rounded-xl sm:rounded-2xl p-1.5 sm:p-2.5 transition-transform duration-500 group-hover:scale-105"
                       priority
                     />
                   </motion.div>
