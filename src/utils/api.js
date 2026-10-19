@@ -122,4 +122,18 @@ export const getProductById = async (id) => {
   return null;
 };
 
+export const createOrder = async (orderData) => {
+  try {
+    const payload = {
+      storeId: STORE_ID,
+      ...orderData,
+    };
+    const response = await api.post('/orders', payload);
+    return response.data;
+  } catch (error) {
+    console.error('API createOrder failed:', error.response?.data || error.message);
+    throw error;
+  }
+};
+
 export default api;

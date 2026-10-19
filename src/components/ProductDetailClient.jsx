@@ -277,16 +277,19 @@ export default function ProductDetailClient({ product, category }) {
     : 0;
 
   const handleAddToCart = () => {
-    for (let i = 0; i < quantity; i++) {
-      addToCart({
+    addToCart(
+      {
         ...product,
+        image: galleryImages[0] || product.image || product.imageUrl,
         price: currentPrice,
         originalPrice: currentMrp,
         selectedVariant: selectedVariant
           ? (typeof selectedVariant === "string" ? selectedVariant : selectedVariant.name || selectedVariant.title || selectedVariant.label)
           : undefined,
-      });
-    }
+      },
+      quantity,
+      true
+    );
     setAdded(true);
     setTimeout(() => {
       setAdded(false);

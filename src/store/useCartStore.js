@@ -5,62 +5,89 @@ export const useCartStore = create(
   persist(
     (set, get) => ({
       cart: [],
-      
+      isCartOpen: false,
+      checkoutStep: 'cart', // 'cart' | 'checkout' | 'success'
+      lastOrder: null,
+
+      openCart: () => set({ isCartOpen: true, checkoutStep: 'cart' }),
+      closeCart: () => set({ isCartOpen: false, checkoutStep: 'cart' }),
+      toggleCart: () => set((state) => ({ isCartOpen: !state.isCartOpen })),
+      setCheckoutStep: (step) => set({ checkoutStep: step }),
+      setLastOrder: (order) => set({ lastOrder: order }),
+
       // Add product to cart (or increment quantity if already exists)
-      addToCart: (product, quantity = 1) => {
+      addToCart: (product, quantity = 1, autoOpen = true) => {
         const currentCart = get().cart;
-        const existingItem = currentCart.find((item) => item.id === product.id);
-        
+        const variantKey = product.selectedVariant || '';
+        const cartItemId = `${product.id}-${variantKey || 'default'}`;
+
+        const existingItem = currentCart.find((item) => (item.cartItemId || item.id) === cartItemId);
+
+        let newCart;
         if (existingItem) {
-          set({
-            cart: currentCart.map((item) =>
-              item.id === product.id
-                ? { ...item, quantity: item.quantity + quantity }
-                : item
-            ),
-          });
+          newCart = currentCart.map((item) =>
+            (item.cartItemId || item.id) === cartItemId
+              ? { ...item, quantity: item.quantity + quantity }
+              : item
+          );
         } else {
-          set({
-            cart: [...currentCart, { ...product, quantity }],
-          });
+          newCart = [
+            ...currentCart,
+            {
+              ...product,
+              cartItemId,
+              quantity,
+              image: product.image || product.imageUrl || '/catogeries/fan.png',
+            },
+          ];
         }
-      },
-      
-      // Remove product from cart
-      removeFromCart: (productId) => {
+
         set({
-          cart: get().cart.filter((item) => item.id !== productId),
+          cart: newCart,
+          isCartOpen: autoOpen ? true : get().isCartOpen,
+          checkoutStep: 'cart',
         });
       },
-      
+
+      // Remove product from cart
+      removeFromCart: (cartItemId) => {
+        set({
+          cart: get().cart.filter((item) => (item.cartItemId || item.id) !== cartItemId),
+        });
+      },
+
       // Update quantity of an item
-      updateQuantity: (productId, quantity) => {
+      updateQuantity: (cartItemId, quantity) => {
         if (quantity <= 0) {
-          get().removeFromCart(productId);
+          get().removeFromCart(cartItemId);
           return;
         }
         set({
           cart: get().cart.map((item) =>
-            item.id === productId ? { ...item, quantity } : item
+            (item.cartItemId || item.id) === cartItemId ? { ...item, quantity } : item
           ),
         });
       },
-      
+
       // Clear entire cart
-      clearCart: () => set({ cart: [] }),
-      
+      clearCart: () => set({ cart: [], lastOrder: null, checkoutStep: 'cart' }),
+
       // Get total item count in cart
       getTotalItems: () => {
         return get().cart.reduce((total, item) => total + (item.quantity || 1), 0);
       },
-      
+
       // Get total cost of items in cart
       getTotalPrice: () => {
-        return get().cart.reduce((total, item) => total + (item.price || 0) * (item.quantity || 1), 0);
+        return get().cart.reduce(
+          (total, item) => total + (Number(item.price) || 0) * (item.quantity || 1),
+          0
+        );
       },
     }),
     {
-      name: 'indivolt-cart-storage', // unique key in localStorage
+      name: 'indivolt-cart-storage',
+      partialize: (state) => ({ cart: state.cart, lastOrder: state.lastOrder }),
     }
   )
 );
