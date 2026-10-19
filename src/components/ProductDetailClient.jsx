@@ -310,19 +310,10 @@ export default function ProductDetailClient({ product, category }) {
 
   return (
     <div className="flex flex-col min-h-screen bg-white text-zinc-900 font-sans selection:bg-[#e3edd3] selection:text-[#2c4714]">
-      {/* 1. Top Announcement Bar */}
-      <div className="w-full bg-[#392742] text-white py-2.5 px-4 text-center text-xs font-medium tracking-wide z-40 relative">
-        <div className="max-w-7xl mx-auto flex items-center justify-center gap-2">
-          <span>Free domestic shipping on orders over ₹999</span>
-          <span className="opacity-50">•</span>
-          <span>1 Year Replacement Guarantee</span>
-        </div>
-      </div>
-
       {/* Main Navbar */}
       <Navbar />
 
-      <main className="flex-grow pt-28 pb-20">
+      <main className="flex-grow pt-24 sm:pt-28 pb-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12">
 
           {/* Breadcrumb / Simple Back button */}
