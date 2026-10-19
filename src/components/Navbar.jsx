@@ -104,6 +104,17 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Lock body scroll when cart or mobile menu is open to prevent background scrolling/jitter
+  useEffect(() => {
+    if (isCartOpen || mobileMenuOpen) {
+      const prevOverflow = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = prevOverflow;
+      };
+    }
+  }, [isCartOpen, mobileMenuOpen]);
+
   const links = [
     { name: "Home", href: "/" },
     { name: "Categories", href: "/#categories", hasDropdown: true },
@@ -234,7 +245,8 @@ export default function Navbar() {
   const amountToFreeShipping = Math.max(0, freeShippingThreshold - totalPrice);
 
   return (
-    <header
+    <>
+      <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
         scrolled
           ? "bg-white/95 backdrop-blur-md border-b border-sky-100 py-3 shadow-md shadow-sky-500/5"
@@ -447,9 +459,10 @@ export default function Navbar() {
           </div>
         </div>
       </div>
+      </header>
 
       {/* ============================================================ */}
-      {/* COMPLETE CART & ORDER SIDEBAR DRAWER                         */}
+      {/* COMPLETE CART & ORDER SIDEBAR DRAWER (Rendered outside header) */}
       {/* ============================================================ */}
       <AnimatePresence>
         {isCartOpen && (
@@ -460,7 +473,7 @@ export default function Navbar() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={closeCart}
-              className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs"
+              className="fixed inset-0 z-[999] bg-black/60 backdrop-blur-xs"
             />
 
             {/* Slide-out Drawer */}
@@ -469,7 +482,7 @@ export default function Navbar() {
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "spring", damping: 28, stiffness: 220 }}
-              className="fixed inset-y-0 right-0 z-50 w-full sm:w-[440px] bg-white shadow-2xl border-l border-slate-200 flex flex-col justify-between overflow-hidden"
+              className="fixed inset-y-0 right-0 z-[1000] w-full sm:w-[440px] bg-white shadow-2xl border-l border-slate-200 flex flex-col justify-between overflow-hidden"
             >
               {/* ========================================== */}
               {/* VIEW 1: CART ITEMS VIEW                   */}
@@ -1055,6 +1068,6 @@ export default function Navbar() {
           </>
         )}
       </AnimatePresence>
-    </header>
+    </>
   );
 }
